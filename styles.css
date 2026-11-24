@@ -634,3 +634,154 @@ input:focus-visible {
     font-size: 29px;
   }
 }
+
+
+/* PURPLE INK + EXTRA FASHION-DIARY DOODLES */
+:root {
+  --ink: #594276;
+  --muted: #88779e;
+}
+
+.eyebrow,
+.intro-copy {
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3,
+.wordmark,
+.inventory-count strong,
+.item-name,
+.field,
+.storage-note {
+  color: var(--ink);
+}
+
+.inventory-count strong,
+.item-brand,
+.item-detail,
+.search-wrap,
+.edition {
+  color: var(--muted);
+}
+
+.intro h1 {
+  position: relative;
+}
+
+.intro h1::before,
+.intro h1::after {
+  position: absolute;
+  font-family: "Mali", sans-serif;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.intro h1::before {
+  content: "✧";
+  color: var(--deep-pink);
+  font-size: .42em;
+  left: 13%;
+  top: 3%;
+  transform: rotate(-18deg);
+}
+
+.intro h1::after {
+  content: "♡";
+  color: var(--leaf);
+  font-size: .38em;
+  right: 13%;
+  bottom: 0;
+  transform: rotate(14deg);
+}
+
+.intro-copy::after {
+  content: "♡   ✧   ♡";
+  display: block;
+  margin-top: 13px;
+  color: var(--leaf);
+  font-size: 19px;
+  letter-spacing: .3em;
+}
+
+.toolbar {
+  position: relative;
+}
+
+.toolbar::after {
+  content: "✧  ♡  ✧";
+  position: absolute;
+  left: 50%;
+  bottom: 13px;
+  transform: translateX(-50%);
+  color: var(--deep-pink);
+  font-size: 17px;
+  letter-spacing: .28em;
+  pointer-events: none;
+}
+
+.item-meta {
+  position: relative;
+}
+
+.item-meta::after {
+  content: "✧";
+  position: absolute;
+  right: 4px;
+  top: 13px;
+  color: var(--leaf);
+  font-size: 14px;
+  opacity: .85;
+  pointer-events: none;
+}
+
+.empty-state {
+  position: relative;
+}
+
+.empty-state::before,
+.empty-state::after {
+  position: absolute;
+  color: var(--deep-pink);
+  font-size: 35px;
+  pointer-events: none;
+}
+
+.empty-state::before {
+  content: "♡";
+  left: -38px;
+  top: 4px;
+  transform: rotate(-16deg);
+}
+
+.empty-state::after {
+  content: "✧";
+  right: -38px;
+  top: 22px;
+  color: var(--leaf);
+  transform: rotate(12deg);
+}
+
+@media (max-width: 580px) {
+  .intro h1::before {
+    left: 2%;
+  }
+
+  .intro h1::after {
+    right: 2%;
+  }
+
+  .toolbar::after {
+    display: none;
+  }
+
+  .empty-state::before {
+    left: 0;
+  }
+
+  .empty-state::after {
+    right: 0;
+  }
+}
