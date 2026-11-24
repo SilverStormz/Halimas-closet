@@ -19,10 +19,13 @@ const measurementsSection = document.getElementById("measurementsSection");
 const outfitsSection = document.getElementById("outfitsSection");
 const outfitsGrid = document.getElementById("outfitsGrid");
 const outfitsEmpty = document.getElementById("outfitsEmpty");
-const wornSection=document.getElementById("wornSection"),wornGrid=document.getElementById("wornGrid"),wornEmpty=document.getElementById("wornEmpty"),wornDialog=document.getElementById("wornDialog"),wornForm=document.getElementById("wornForm"),wornPhotoInput=document.getElementById("wornPhotoInput"),wornPhotoPreview=document.getElementById("wornPhotoPreview");
-const WORN_KEY="halimas-closet-worn-photos-v1";let wornLooks=loadWornLooks(),editingWornId=null,editingWornPhoto="";
+const WORN_KEY="halimas-closet-worn-photos-v1";
+const legacyWornLooks=loadWornLooks();
 const outfitDialog = document.getElementById("outfitDialog");
 const outfitForm = document.getElementById("outfitForm");
+const outfitPhotoInput=document.getElementById("outfitPhotoInput");
+const outfitPhotoPreview=document.getElementById("outfitPhotoPreview");
+let editingOutfitPhoto="";
 const OUTFITS_STORAGE_KEY = "halimas-closet-outfits-v1";
 let outfits = loadOutfits();
 let editingOutfitId = null;
@@ -69,7 +72,6 @@ function setView(view) {
   const showingCloset = view === "closet";
   const showingWishlist = view === "wishlist";
   const showingOutfits = view === "outfits";
-  const showingWorn = view === "worn";
   closetToolbar.hidden = !showingCloset;
   categoryNav.hidden = !showingCloset;
   closetGrid.hidden = !showingCloset;
@@ -77,11 +79,22 @@ function setView(view) {
   wishlistSection.hidden = !showingWishlist;
   measurementsSection.hidden = view !== "measurements";
   outfitsSection.hidden = !showingOutfits;
-  wornSection.hidden=!showingWorn;if(showingWorn)renderWornLooks();
   if (showingWishlist) renderWishes();
   if (showingOutfits) renderOutfits();
 }
 let items = loadItems();
+function migrateLookbookIntoOutfits() {
+  const knownIds = new Set(outfits.map(entry => String(entry.id)));
+  const imported = legacyWornLooks.filter(look => !knownIds.has(String(look.id))).map(look => ({
+    id: look.id, photo: look.photo, name: look.name, date: look.date || "",
+    occasion: look.occasion || "", notes: look.notes || "", itemIds: look.itemIds || []
+  }));
+  if (imported.length) {
+    outfits = [...imported, ...outfits];
+    saveOutfits();
+  }
+}
+migrateLookbookIntoOutfits();
 let activeCategory = "All";
 let searchTerm = "";
 
@@ -181,17 +194,18 @@ function renderOutfits() {
     const pieces = (outfit.itemIds || []).map(id => items.find(item => String(item.id) === String(id))).filter(Boolean);
     return `
       <article class="outfit-card">
-        <div class="outfit-card-top"><span>♡ OUTFIT NOTE</span><span>${escapeHTML(outfit.date || outfit.occasion || "A look to remember")}</span></div>
-        <h3>${escapeHTML(outfit.name)}</h3>
-        ${outfit.occasion ? `<p class="outfit-occasion">${escapeHTML(outfit.occasion)}</p>` : ""}
-        <div class="outfit-piece-strip">
-          ${pieces.map(piece => `<div class="outfit-piece"><img src="${piece.photo}" alt="${escapeHTML(piece.name)}"><span>${escapeHTML(piece.name)}</span></div>`).join("")}
-          ${pieces.length === 0 ? '<p class="outfit-missing">Some saved pieces are no longer in your closet.</p>' : ""}
-        </div>
-        ${outfit.notes ? `<p class="outfit-notes">${escapeHTML(outfit.notes)}</p>` : ""}
-        <div class="outfit-actions">
-          <button type="button" data-outfit-edit="${escapeHTML(outfit.id)}">Edit outfit ✎</button>
-          <button type="button" data-outfit-delete="${escapeHTML(outfit.id)}">Delete</button>
+        ${outfit.photo ? `<img class="outfit-main-photo" src="${outfit.photo}" alt="${escapeHTML(outfit.name)}">` : ""}
+        <div class="outfit-card-body">
+          <div class="outfit-card-top"><span>♡ OUTFIT DIARY</span><span>${escapeHTML(outfit.date || outfit.occasion || "A look to remember")}</span></div>
+          <h3>${escapeHTML(outfit.name)}</h3>
+          ${outfit.occasion ? `<p class="outfit-occasion">${escapeHTML(outfit.occasion)}</p>` : ""}
+          ${pieces.length ? `<p class="outfit-wearing-tags">Wearing: ${pieces.map(piece => escapeHTML(piece.name)).join(" · ")}</p>` : ""}
+          ${pieces.length ? `<div class="outfit-piece-strip">${pieces.map(piece => `<div class="outfit-piece"><img src="${piece.photo}" alt="${escapeHTML(piece.name)}"><span>${escapeHTML(piece.name)}</span></div>`).join("")}</div>` : ""}
+          ${outfit.notes ? `<p class="outfit-notes">${escapeHTML(outfit.notes)}</p>` : ""}
+          <div class="outfit-actions">
+            <button type="button" data-outfit-edit="${escapeHTML(outfit.id)}">Edit outfit ✎</button>
+            <button type="button" data-outfit-delete="${escapeHTML(outfit.id)}">Delete</button>
+          </div>
         </div>
       </article>`;
   }).join("");
@@ -230,7 +244,15 @@ function updateOutfitSelectedCount() {
 }
 function openOutfitDialog(outfit = null) {
   editingOutfitId = outfit ? outfit.id : null;
+  editingOutfitPhoto = outfit?.photo || "";
   outfitForm.reset();
+  outfitPhotoInput.required = !outfit;
+  outfitPhotoPreview.hidden = !outfit?.photo;
+  if (outfit?.photo) outfitPhotoPreview.src = outfit.photo;
+  else outfitPhotoPreview.removeAttribute("src");
+  document.getElementById("outfitPhotoLabel").textContent = outfit?.photo ? "Current photo (choose to replace)" : "Add a photo of you wearing this look";
+  document.getElementById("outfitUploadIcon").hidden = !!outfit?.photo;
+  document.querySelector(".outfit-photo-drop small").hidden = !!outfit?.photo;
   document.getElementById("outfitName").value = outfit?.name || "";
   document.getElementById("outfitOccasion").value = outfit?.occasion || "";
   document.getElementById("outfitDate").value = outfit?.date || "";
@@ -244,12 +266,6 @@ function openOutfitDialog(outfit = null) {
 }
 
 
-function loadWornLooks(){try{return JSON.parse(localStorage.getItem(WORN_KEY)||"[]")}catch{return []}}
-function saveWornLooks(){try{localStorage.setItem(WORN_KEY,JSON.stringify(wornLooks));return true}catch{alert("Browser storage is full. Try a smaller photo or remove an older look.");return false}}
-function renderWornLooks(){wornGrid.innerHTML=wornLooks.map(x=>{const pieces=(x.itemIds||[]).map(id=>items.find(i=>String(i.id)===String(id))).filter(Boolean);return `<article class="worn-card"><img class="worn-main-photo" src="${x.photo}" alt="${escapeHTML(x.name)}"><div class="worn-card-body"><div class="worn-card-top"><span>♡ MY LOOKBOOK</span><span>${escapeHTML(x.date||x.occasion||"A look to remember")}</span></div><h3>${escapeHTML(x.name)}</h3>${x.occasion?`<p>${escapeHTML(x.occasion)}</p>`:""}${pieces.length?`<p class="worn-tags">Wearing: ${pieces.map(p=>escapeHTML(p.name)).join(" · ")}</p>`:""}${x.notes?`<p>${escapeHTML(x.notes)}</p>`:""}<div class="outfit-actions"><button data-worn-edit="${x.id}" type="button">Edit ✎</button><button data-worn-delete="${x.id}" type="button">Delete</button></div></div></article>`}).join("");wornEmpty.hidden=wornLooks.length>0}
-function renderWornChoices(ids=[]){const selected=ids.map(String);document.getElementById("wornItemChoices").innerHTML=items.length?items.map(i=>`<label class="outfit-choice"><input type="checkbox" name="wornItems" value="${i.id}" ${selected.includes(String(i.id))?"checked":""}><img src="${i.photo}" alt=""><span><strong>${escapeHTML(i.name)}</strong><small>${escapeHTML(i.brand||i.category||"")}</small></span></label>`).join(""):'<p class="outfit-no-items">Add pieces to My Closet first to tag them here.</p>';updateWornCount()}
-function updateWornCount(){document.getElementById("wornSelectedCount").textContent=document.querySelectorAll('input[name="wornItems"]:checked').length+" selected"}
-function openWornDialog(x=null){editingWornId=x?.id||null;editingWornPhoto=x?.photo||"";wornForm.reset();wornPhotoInput.required=!x;wornPhotoPreview.hidden=!x;if(x)wornPhotoPreview.src=x.photo;else wornPhotoPreview.removeAttribute("src");document.getElementById("wornPhotoLabel").textContent=x?"Current photo (choose to replace)":"Add a photo of you wearing it";document.getElementById("wornUploadIcon").hidden=!!x;document.querySelector(".worn-photo-drop small").hidden=!!x;document.getElementById("wornName").value=x?.name||"";document.getElementById("wornDate").value=x?.date||"";document.getElementById("wornOccasion").value=x?.occasion||"";document.getElementById("wornNotes").value=x?.notes||"";document.getElementById("wornDialogTitle").textContent=x?"Edit your look":"Add a look photo";renderWornChoices(x?.itemIds||[]);wornDialog.showModal()}
 function loadMeasurements() {
   try { return JSON.parse(localStorage.getItem(MEASUREMENTS_STORAGE_KEY) || "{}"); }
   catch { return {}; }
@@ -276,24 +292,33 @@ measurementsForm.addEventListener("submit", event => {
 populateMeasurements();
 
 
-document.getElementById("openWornTop").addEventListener("click",()=>openWornDialog());document.getElementById("openWornEmpty").addEventListener("click",()=>openWornDialog());document.getElementById("closeWornDialog").addEventListener("click",()=>wornDialog.close());document.getElementById("wornItemChoices").addEventListener("change",updateWornCount);
-wornPhotoInput.addEventListener("change",()=>{const f=wornPhotoInput.files[0];if(!f)return;if(!f.type.startsWith("image/")){alert("Please choose an image file.");wornPhotoInput.value="";return}const r=new FileReader();r.onload=()=>{wornPhotoPreview.src=r.result;wornPhotoPreview.hidden=false;document.getElementById("wornPhotoLabel").textContent=f.name;document.getElementById("wornUploadIcon").hidden=true;document.querySelector(".worn-photo-drop small").hidden=true};r.readAsDataURL(f)});
-wornForm.addEventListener("submit",e=>{e.preventDefault();const photo=wornPhotoInput.files[0]?wornPhotoPreview.src:editingWornPhoto;if(!photo){alert("Please add a photo first.");return}const x={id:editingWornId||(crypto.randomUUID?crypto.randomUUID():String(Date.now())),photo,name:document.getElementById("wornName").value.trim(),date:document.getElementById("wornDate").value,occasion:document.getElementById("wornOccasion").value.trim(),notes:document.getElementById("wornNotes").value.trim(),itemIds:Array.from(document.querySelectorAll('input[name="wornItems"]:checked')).map(i=>i.value)};const old=[...wornLooks];if(editingWornId)wornLooks=wornLooks.map(y=>String(y.id)===String(editingWornId)?x:y);else wornLooks.unshift(x);if(saveWornLooks()){wornDialog.close();setView("worn")}else wornLooks=old});
-wornGrid.addEventListener("click",e=>{const edit=e.target.closest("[data-worn-edit]"),del=e.target.closest("[data-worn-delete]");if(edit){const x=wornLooks.find(y=>String(y.id)===edit.dataset.wornEdit);if(x)openWornDialog(x)}else if(del){const x=wornLooks.find(y=>String(y.id)===del.dataset.wornDelete);if(!x||!confirm('Delete "'+x.name+'" from your lookbook?'))return;wornLooks=wornLooks.filter(y=>String(y.id)!==String(x.id));saveWornLooks();renderWornLooks()}});
 document.getElementById("openOutfitTop").addEventListener("click", () => openOutfitDialog());
 document.getElementById("openOutfitEmpty").addEventListener("click", () => openOutfitDialog());
 document.getElementById("closeOutfitDialog").addEventListener("click", () => outfitDialog.close());
 document.getElementById("outfitItemChoices").addEventListener("change", updateOutfitSelectedCount);
+outfitPhotoInput.addEventListener("change", () => {
+  const file = outfitPhotoInput.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { alert("Please choose an image file."); outfitPhotoInput.value = ""; return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    outfitPhotoPreview.src = reader.result;
+    outfitPhotoPreview.hidden = false;
+    document.getElementById("outfitPhotoLabel").textContent = file.name;
+    document.getElementById("outfitUploadIcon").hidden = true;
+    document.querySelector(".outfit-photo-drop small").hidden = true;
+  };
+  reader.readAsDataURL(file);
+});
 document.getElementById("outfitPieceSearch").addEventListener("input", event => filterOutfitChoices(event.target.value));
 outfitForm.addEventListener("submit", event => {
   event.preventDefault();
+  const photo = outfitPhotoInput.files[0] ? outfitPhotoPreview.src : editingOutfitPhoto;
+  if (!photo) { alert("Please add a photo of this look first."); return; }
   const itemIds = Array.from(document.querySelectorAll('input[name="outfitItems"]:checked')).map(input => input.value);
-  if (!itemIds.length) {
-    alert("Choose at least one piece from your closet to save this outfit.");
-    return;
-  }
   const outfit = {
     id: editingOutfitId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    photo,
     name: document.getElementById("outfitName").value.trim(),
     occasion: document.getElementById("outfitOccasion").value,
     date: document.getElementById("outfitDate").value,
