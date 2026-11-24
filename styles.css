@@ -357,9 +357,8 @@ h1 em {
 
 .item-form {
   padding: 30px;
-  overflow: auto;
-  max-height: 90vh;
 }
+
 
 .dialog-heading {
   display: flex;
