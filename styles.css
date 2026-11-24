@@ -345,6 +345,7 @@ h1 em {
   padding: 0;
   border: 2px solid var(--pink);
   border-radius: 20px;
+  overflow: clip;
   background: var(--white);
   color: var(--ink);
  
