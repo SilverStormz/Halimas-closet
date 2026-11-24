@@ -250,7 +250,7 @@ function openOutfitDialog(outfit = null) {
   editingOutfitId = outfit ? outfit.id : null;
   editingOutfitPhoto = outfit?.photo || "";
   outfitForm.reset();
-  outfitPhotoInput.required = !outfit;
+  outfitPhotoInput.required = false;
   outfitPhotoPreview.hidden = !outfit?.photo;
   if (outfit?.photo) outfitPhotoPreview.src = outfit.photo;
   else outfitPhotoPreview.removeAttribute("src");
@@ -322,7 +322,6 @@ document.getElementById("outfitPieceSearch").addEventListener("input", event => 
 outfitForm.addEventListener("submit", event => {
   event.preventDefault();
   const photo = outfitPhotoInput.files[0] ? outfitPhotoPreview.src : editingOutfitPhoto;
-  if (!photo && !editingOutfitId) { alert("Please add a photo of this look first."); return; }
   const itemIds = Array.from(document.querySelectorAll('input[name="outfitItems"]:checked')).map(input => input.value);
   const outfit = {
     id: editingOutfitId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
