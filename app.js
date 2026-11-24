@@ -20,6 +20,7 @@ const outfitsSection = document.getElementById("outfitsSection");
 const outfitsGrid = document.getElementById("outfitsGrid");
 const outfitsEmpty = document.getElementById("outfitsEmpty");
 const WORN_KEY="halimas-closet-worn-photos-v1";
+function loadWornLooks(){try{return JSON.parse(localStorage.getItem(WORN_KEY)||"[]")}catch{return []}}
 const legacyWornLooks=loadWornLooks();
 const outfitDialog = document.getElementById("outfitDialog");
 const outfitForm = document.getElementById("outfitForm");
