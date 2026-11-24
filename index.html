@@ -30,7 +30,24 @@
       <button class="archive-tab active" type="button" data-view="closet">My Closet</button>
       <button class="archive-tab" type="button" data-view="wishlist">Wish List <span aria-hidden="true">♡</span></button>
       <button class="archive-tab" type="button" data-view="measurements">My Measurements <span aria-hidden="true">✿</span></button>
+      <button class="archive-tab" type="button" data-view="outfits">Outfit Diary <span aria-hidden="true">♡</span></button>
     </nav>
+
+
+    <section class="outfits-section" id="outfitsSection" hidden>
+      <div class="outfits-heading">
+        <div><p class="eyebrow">THE LOOKS I LOVE</p><h2>My Outfit Diary <span>♡</span></h2></div>
+        <button class="add-button" id="openOutfitTop" type="button">＋ Create an outfit</button>
+      </div>
+      <p class="outfits-intro">Put your closet pieces together, save the look and keep a little record of what you wore.</p>
+      <div class="outfits-grid" id="outfitsGrid" aria-live="polite"></div>
+      <div class="outfits-empty" id="outfitsEmpty">
+        <div class="empty-mark">♡</div>
+        <h2>Your next favourite look starts here.</h2>
+        <p>Choose pieces from your closet to create your first outfit.</p>
+        <button class="add-button" id="openOutfitEmpty" type="button">＋ Create your first outfit</button>
+      </div>
+    </section>
 
     <section class="measurements-section" id="measurementsSection" hidden>
       <div class="measurements-heading">
@@ -181,6 +198,33 @@
         <label class="field full">Notes<textarea id="wishNotes" rows="3" placeholder="Colour, details, why it's on your list…"></textarea></label>
       </div>
       <button class="save-button" type="submit">Save to my wish list ♡</button>
+    </form>
+  </dialog>
+
+
+  <dialog class="item-dialog outfit-dialog" id="outfitDialog">
+    <form id="outfitForm" class="item-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">PUT THE LOOK TOGETHER</p><h2 id="outfitDialogTitle">Create an outfit</h2></div>
+        <button type="button" class="close-button" id="closeOutfitDialog" aria-label="Close">×</button>
+      </div>
+      <div class="form-grid">
+        <label class="field full">Outfit name<input id="outfitName" required placeholder="e.g. Dinner with the girls"></label>
+        <label class="field">Occasion
+          <select id="outfitOccasion">
+            <option value="">Choose an occasion</option>
+            <option>Everyday</option><option>Work</option><option>Date night</option><option>Going out</option>
+            <option>Wedding / Event</option><option>Vacation</option><option>Special occasion</option><option>Other</option>
+          </select>
+        </label>
+        <label class="field">Date worn<input id="outfitDate" type="date"></label>
+        <label class="field full">Outfit notes<textarea id="outfitNotes" rows="2" placeholder="How you styled it, where you wore it, or ideas for next time…"></textarea></label>
+      </div>
+      <div class="outfit-picker">
+        <div class="outfit-picker-heading"><h3>Choose pieces from My Closet</h3><span id="outfitSelectedCount">0 selected</span></div>
+        <div id="outfitItemChoices" class="outfit-item-choices"></div>
+      </div>
+      <button class="save-button" type="submit">Save this outfit ♡</button>
     </form>
   </dialog>
 
