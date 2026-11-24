@@ -209,6 +209,17 @@ function renderOutfitChoices(selectedIds = []) {
     </label>`).join("");
   updateOutfitSelectedCount();
 }
+function filterOutfitChoices(query) {
+  const term = query.trim().toLowerCase();
+  let visibleCount = 0;
+  document.querySelectorAll("#outfitItemChoices .outfit-choice").forEach(choice => {
+    const matches = choice.textContent.toLowerCase().includes(term);
+    choice.hidden = !matches;
+    if (matches) visibleCount++;
+  });
+  const noResults = document.getElementById("outfitSearchNoResults");
+  noResults.hidden = !term || visibleCount > 0 || !items.length;
+}
 function updateOutfitSelectedCount() {
   const count = document.querySelectorAll('input[name="outfitItems"]:checked').length;
   document.getElementById("outfitSelectedCount").textContent = count + (count === 1 ? " selected" : " selected");
@@ -223,6 +234,8 @@ function openOutfitDialog(outfit = null) {
   document.getElementById("outfitDialogTitle").textContent = outfit ? "Edit an outfit" : "Create an outfit";
   outfitForm.querySelector(".save-button").textContent = outfit ? "Save outfit changes ♡" : "Save this outfit ♡";
   renderOutfitChoices(outfit?.itemIds || []);
+  document.getElementById("outfitPieceSearch").value = "";
+  filterOutfitChoices("");
   outfitDialog.showModal();
 }
 
@@ -257,6 +270,7 @@ document.getElementById("openOutfitTop").addEventListener("click", () => openOut
 document.getElementById("openOutfitEmpty").addEventListener("click", () => openOutfitDialog());
 document.getElementById("closeOutfitDialog").addEventListener("click", () => outfitDialog.close());
 document.getElementById("outfitItemChoices").addEventListener("change", updateOutfitSelectedCount);
+document.getElementById("outfitPieceSearch").addEventListener("input", event => filterOutfitChoices(event.target.value));
 outfitForm.addEventListener("submit", event => {
   event.preventDefault();
   const itemIds = Array.from(document.querySelectorAll('input[name="outfitItems"]:checked')).map(input => input.value);
