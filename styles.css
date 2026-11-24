@@ -1848,3 +1848,208 @@ button, input, select, textarea, .field, .item-detail,
 @media (max-width: 580px) {
   h1 { font-size: clamp(48px, 12vw, 70px); }
 }
+
+
+/* SCRAPBOOK COLLAGE LAYER — editorial clippings and paper scraps */
+:root {
+  --scrap-paper: #fffdf8;
+  --scrap-cream: #eee7d8;
+  --scrap-rose: #e8c5cb;
+  --scrap-lilac: #d9cde5;
+  --scrap-ink: #302b38;
+}
+.intro {
+  isolation: isolate;
+  position: relative;
+  padding-bottom: 68px;
+}
+.intro::before,
+.intro::after {
+  display: block !important;
+  z-index: -1;
+  width: auto;
+  height: auto;
+  background-image: none;
+  opacity: 1;
+  pointer-events: none;
+  box-shadow: 2px 5px 12px rgba(42,32,54,.12);
+}
+.intro::before {
+  content: "THE STYLE FILE";
+  left: 2%;
+  top: 42px;
+  padding: 10px 13px 8px;
+  color: var(--scrap-ink);
+  background: var(--scrap-paper);
+  border: 1px solid #e4ddd1;
+  font: 700 11px/1 "Space Grotesk", sans-serif;
+  letter-spacing: .18em;
+  transform: rotate(-8deg);
+}
+.intro::after {
+  content: "CUT  /  KEEP  /  REPEAT";
+  right: 3%;
+  top: auto;
+  bottom: 34px;
+  padding: 9px 12px;
+  color: #6f526e;
+  background: var(--scrap-rose);
+  font: 600 9px/1.2 "Space Grotesk", sans-serif;
+  letter-spacing: .13em;
+  transform: rotate(5deg);
+}
+.intro h1 {
+  position: relative;
+  z-index: 1;
+  text-shadow: 2px 2px 0 rgba(255,255,255,.72);
+}
+.intro h1::before,
+.intro h1::after {
+  display: block !important;
+  position: absolute;
+  pointer-events: none;
+  font-family: "Bodoni Moda", Georgia, serif;
+}
+.intro h1::before {
+  content: "VOL. 01";
+  left: 8%;
+  top: -20px;
+  padding: 5px 8px;
+  color: #fff;
+  background: var(--window-accent);
+  font: 700 9px/1 "Space Grotesk", sans-serif;
+  letter-spacing: .16em;
+  transform: rotate(-7deg);
+}
+.intro h1::after {
+  content: "✳";
+  right: 10%;
+  bottom: -13px;
+  color: #b66f79;
+  font-size: 32px;
+  transform: rotate(13deg);
+}
+.archive-tabs {
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 28px;
+}
+.archive-tab {
+  position: relative;
+  border: 1px solid #ded4c8;
+  border-radius: 2px 3px 2px 4px;
+  padding: 11px 16px;
+  background: var(--scrap-paper);
+  color: #4b4350;
+  box-shadow: 2px 3px 0 #e5ddd4;
+  font: 600 11px "Space Grotesk", sans-serif;
+  transform: rotate(-1deg);
+}
+.archive-tab:nth-child(even) { transform: rotate(1.3deg); }
+.archive-tab.active,
+.archive-tab:hover {
+  border-color: #c9b8d8;
+  background: #e9e0ef;
+  color: #554263;
+  box-shadow: 3px 4px 0 #d7cadd;
+}
+.archive-tab::after {
+  content: "";
+  position: absolute;
+  width: 34px;
+  height: 8px;
+  top: -4px;
+  left: calc(50% - 17px);
+  background: rgba(224,199,174,.62);
+  transform: rotate(-4deg);
+}
+.wishlist-heading,
+.outfits-heading,
+.measurements-heading {
+  position: relative;
+  padding-top: 18px;
+}
+.wishlist-heading::after,
+.outfits-heading::after,
+.measurements-heading::after {
+  content: "✂";
+  position: absolute;
+  right: 12px;
+  top: -11px;
+  padding: 3px 9px;
+  color: #8c718e;
+  background: var(--scrap-paper);
+  font: 19px "Bodoni Moda", serif;
+  transform: rotate(12deg);
+}
+.item-photo::after,
+.outfit-main-photo::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 36px;
+  height: 11px;
+  background: rgba(235,216,190,.72);
+  transform: rotate(34deg);
+  pointer-events: none;
+}
+.item-photo {
+  position: relative;
+}
+.item-card,
+.wish-card,
+.outfit-card,
+.measurement-group {
+  box-shadow: 2px 4px 0 rgba(74,60,76,.08), 0 5px 16px rgba(42,32,54,.045);
+}
+.item-card:nth-child(3n + 1) { transform: rotate(-.35deg); }
+.item-card:nth-child(3n) { transform: rotate(.3deg); }
+.item-card:hover { transform: translateY(-4px) rotate(0); }
+.wish-card:nth-child(odd) { transform: rotate(-.45deg); }
+.wish-card:nth-child(even) { transform: rotate(.4deg); }
+.outfit-card:nth-child(odd) { transform: rotate(-.25deg); }
+.outfit-card:nth-child(even) { transform: rotate(.3deg); }
+.measurement-group:nth-child(odd) { transform: rotate(-.2deg); }
+.item-meta .edit-button,
+.wish-actions button,
+.outfit-actions button {
+  border-radius: 3px;
+  transform: rotate(-1deg);
+}
+.backup-strip {
+  position: relative;
+  border: 1px solid #e1d6c9;
+  border-radius: 2px;
+  background: #f4eee2;
+  box-shadow: 3px 4px 0 rgba(74,60,76,.08);
+  transform: rotate(-.25deg);
+}
+.backup-strip::before {
+  content: "KEEP SAFE";
+  position: absolute;
+  top: -9px;
+  right: 18px;
+  padding: 4px 8px;
+  background: var(--scrap-lilac);
+  color: #554263;
+  font: 700 8px "Space Grotesk", sans-serif;
+  letter-spacing: .15em;
+  transform: rotate(3deg);
+}
+@media (max-width: 700px) {
+  .intro { padding-top: 65px; padding-bottom: 60px; }
+  .intro::before { left: 1%; top: 18px; font-size: 9px; }
+  .intro::after { right: 1%; bottom: 16px; font-size: 8px; }
+  .intro h1::before { left: 3%; top: -17px; }
+  .intro h1::after { right: 4%; font-size: 24px; }
+  .archive-tabs { justify-content: flex-start; gap: 8px; }
+  .archive-tab { flex: 0 0 auto; padding: 10px 12px; font-size: 10px; }
+  .wishlist-heading::after,
+  .outfits-heading::after,
+  .measurements-heading::after { right: 3px; }
+  .item-card:nth-child(n),
+  .wish-card:nth-child(n),
+  .outfit-card:nth-child(n),
+  .measurement-group:nth-child(n) { transform: none; }
+}
