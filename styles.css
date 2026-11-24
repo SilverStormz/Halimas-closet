@@ -1799,3 +1799,52 @@ h1 em { color: var(--window-accent) !important; }
   .wish-card { padding: 42px 14px 14px; }
   .measurement-group { padding: 41px 15px 16px; }
 }
+
+
+/* EDITORIAL GRUNGE TYPOGRAPHY */
+body, button, input, select, textarea {
+  font-family: "Space Grotesk", sans-serif;
+}
+h1, h2, h3, .dialog-heading h2, .wishlist-heading h2,
+.outfits-heading h2, .measurements-heading h2,
+.empty-state h2, .wishlist-empty h2, .outfits-empty h2 {
+  font-family: "Bodoni Moda", Georgia, serif !important;
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+h1 {
+  font-size: clamp(54px, 8vw, 94px);
+  line-height: .98;
+  letter-spacing: -.055em;
+}
+h1 em {
+  font-family: "Bodoni Moda", Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+}
+.wordmark {
+  font-family: "Space Grotesk", sans-serif !important;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+.eyebrow, .edition, .inventory-count span, .item-brand,
+.wish-card-top, .outfit-card-top {
+  font-family: "Space Grotesk", sans-serif;
+  letter-spacing: .18em;
+  font-weight: 600;
+}
+.item-name, .wish-card h3, .outfit-card h3, .measurement-group h3 {
+  font-family: "Bodoni Moda", Georgia, serif !important;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+button, input, select, textarea, .field, .item-detail,
+.wish-notes, .outfit-notes, .intro-copy {
+  font-family: "Space Grotesk", sans-serif;
+}
+.item-card, .wish-card, .outfit-card, .measurement-group {
+  letter-spacing: .005em;
+}
+@media (max-width: 580px) {
+  h1 { font-size: clamp(48px, 12vw, 70px); }
+}
