@@ -342,8 +342,9 @@ outfitForm.addEventListener("submit", event => {
   } else outfits = previous;
 });
 outfitsGrid.addEventListener("click", event => {
-  const edit = event.target.closest("[data-outfit-edit]");
-  const remove = event.target.closest("[data-outfit-delete]");
+  const target = event.target instanceof Element ? event.target : event.target.parentElement;
+  const edit = target && target.closest("[data-outfit-edit]");
+  const remove = target && target.closest("[data-outfit-delete]");
   if (edit) {
     const outfit = outfits.find(entry => String(entry.id) === String(edit.dataset.outfitEdit));
     if (outfit) openOutfitDialog(outfit);
@@ -351,10 +352,26 @@ outfitsGrid.addEventListener("click", event => {
   }
   if (remove) {
     const outfit = outfits.find(entry => String(entry.id) === String(remove.dataset.outfitDelete));
-    if (!outfit || !confirm('Delete "' + outfit.name + '" from your Outfit Diary?')) return;
+    if (!outfit) return;
+
+    // Use an in-button, two-tap confirmation instead of the browser confirm()
+    // dialog, which can be unreliable on some mobile browsers.
+    if (remove.dataset.confirmDelete !== "true") {
+      remove.dataset.confirmDelete = "true";
+      remove.textContent = "Tap again to delete";
+      remove.setAttribute("aria-label", "Tap again to confirm deleting " + outfit.name);
+      remove.classList.add("delete-confirming");
+      return;
+    }
+
+    const previousOutfits = [...outfits];
     outfits = outfits.filter(entry => String(entry.id) !== String(outfit.id));
-    saveOutfits();
-    renderOutfits();
+    if (saveOutfits()) {
+      renderOutfits();
+    } else {
+      outfits = previousOutfits;
+      renderOutfits();
+    }
   }
 });
 
