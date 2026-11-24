@@ -785,3 +785,78 @@ h3,
     right: 0;
   }
 }
+
+
+/* PURPLE TITLES + BUTTONS, WITH IMAGE-BASED LACE TRIM */
+:root {
+  --ink: #684b88;
+  --muted: #927eaa;
+  --button-purple: #a88bc9;
+  --button-purple-dark: #8e70b2;
+}
+
+h1,
+h1 em,
+h2,
+h3,
+.dialog-heading h2,
+.wordmark,
+.eyebrow,
+.intro-copy,
+.inventory-count strong,
+.item-name,
+.item-brand,
+.field,
+.storage-note {
+  color: var(--ink) !important;
+}
+
+.add-button,
+.save-button,
+.category-chip,
+.category-chip.active,
+.category-chip:hover {
+  background-color: var(--button-purple) !important;
+  border-color: var(--button-purple) !important;
+  color: #fff !important;
+}
+
+.add-button:hover,
+.save-button:hover {
+  background-color: var(--button-purple-dark) !important;
+  border-color: var(--button-purple-dark) !important;
+}
+
+.delete-button,
+.close-button {
+  color: var(--button-purple-dark) !important;
+}
+
+.category-chip {
+  box-shadow: 2px 3px 0 #ded2ec;
+}
+
+.item-dialog {
+  border: 0;
+  padding: 22px 12px;
+  background-color: #fffefa;
+  background-image:
+    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
+    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png");
+  background-repeat: repeat-x, repeat-x;
+  background-size: 150px 22px, 150px 22px;
+  background-position: top center, bottom center;
+  box-shadow: 0 15px 60px rgba(70, 55, 90, .22);
+}
+
+.item-form {
+  background: #fffefa;
+  border-radius: 15px;
+}
+
+@media (max-width: 580px) {
+  .item-dialog {
+    padding: 19px 9px;
+    background-size: 120px 19px, 120px 19px;
+  }
+}
