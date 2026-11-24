@@ -345,7 +345,7 @@ h1 em {
   padding: 0;
   border: 2px solid var(--pink);
   border-radius: 20px;
-  overflow: clip;
+  overflow: hidden;
   background: var(--white);
   color: var(--ink);
  
@@ -358,7 +358,7 @@ h1 em {
 
 .item-form {
   padding: 22px 18px;
-  max-height: 90vh;
+  max-height: calc (90vh - 4vh);
   overflow-y: auto;
   box-sizing: border-box;
 }
