@@ -842,10 +842,12 @@ h3,
   background-color: #fffefa;
   background-image:
     url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
+    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
+    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
     url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png");
-  background-repeat: repeat-x, repeat-x;
-  background-size: 150px 22px, 150px 22px;
-  background-position: top center, bottom center;
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size: 150px 22px, 150px 22px, 22px 150px, 22px 150px;
+  background-position: top center, bottom center, center left, center right;
   box-shadow: 0 15px 60px rgba(70, 55, 90, .22);
 }
 
