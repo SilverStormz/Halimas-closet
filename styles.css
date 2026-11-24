@@ -357,7 +357,10 @@ h1 em {
 }
 
 .item-form {
-  padding: 30px;
+  padding: 22px 18px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 
