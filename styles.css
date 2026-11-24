@@ -1076,3 +1076,27 @@ h3,
   box-shadow: 0 2px 7px #00000012; cursor: pointer;
 }
 .edit-button:hover { background: #f4eafa; transform: translateY(-1px); }
+
+
+/* CLEAR, VISIBLE EDIT ACTION */
+.item-meta .edit-button {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  margin-top: 10px;
+  padding: 7px 13px;
+  border: 1px solid #d9cce8;
+  border-radius: 20px;
+  background: #f6f0fb;
+  color: #765b96;
+  font: 700 11px "Mali", sans-serif;
+  box-shadow: none;
+  cursor: pointer;
+}
+.item-meta .edit-button:hover {
+  background: #eadef3;
+  transform: translateY(-1px);
+}
