@@ -1189,3 +1189,59 @@ h3,
   .measurements-footer { align-items: stretch; flex-direction: column; }
   .measurements-footer .save-button { width: 100%; }
 }
+
+
+/* OUTFIT DIARY */
+.outfits-section { padding: 8px 0 40px; }
+.outfits-heading {
+  display:flex; align-items:center; justify-content:space-between; gap:18px;
+  border-bottom:2px dashed var(--leaf); padding:12px 0 18px;
+}
+.outfits-heading .eyebrow { text-align:left; margin-bottom:7px; }
+.outfits-heading h2 { color:var(--ink); font-size:clamp(27px,4vw,38px); margin:0; }
+.outfits-heading h2 span { color:var(--deep-pink); }
+.outfits-intro { color:var(--muted); font-size:12px; line-height:1.6; margin:15px 0 24px; }
+.outfits-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.outfit-card {
+  min-width:0; padding:18px; background:#fffefa; border:1.5px solid #e4d9ef;
+  border-radius:18px; box-shadow:3px 4px 0 #e7dff0;
+}
+.outfit-card-top { display:flex; justify-content:space-between; gap:10px; color:var(--deep-pink); font-size:9px; font-weight:700; letter-spacing:.08em; }
+.outfit-card h3 { color:var(--ink); font-size:20px; margin:12px 0 3px; }
+.outfit-occasion { color:var(--muted); font-size:10px; margin:0 0 12px; }
+.outfit-piece-strip { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:14px; }
+.outfit-piece { min-width:0; }
+.outfit-piece img { width:100%; aspect-ratio:.82; object-fit:cover; display:block; border-radius:10px; background:#f4eafa; }
+.outfit-piece span { display:block; color:var(--muted); font-size:9px; line-height:1.35; margin-top:5px; overflow-wrap:anywhere; }
+.outfit-notes { color:var(--muted); font-size:11px; line-height:1.55; margin:13px 0 0; }
+.outfit-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:16px; padding-top:12px; border-top:1px dashed #e4d9ef; }
+.outfit-actions button {
+  border:1px solid #d9cce8; background:#f6f0fb; color:var(--button-purple-dark);
+  border-radius:20px; padding:7px 12px; font:700 10px "Mali",sans-serif; cursor:pointer;
+}
+.outfits-empty { max-width:390px; margin:55px auto; text-align:center; }
+.outfits-empty h2 { color:var(--ink); margin:0 0 9px; }
+.outfits-empty p,.outfit-no-items { color:var(--muted); font-size:12px; line-height:1.7; }
+.outfits-empty[hidden],.outfits-section[hidden] { display:none !important; }
+.outfit-picker { margin-top:22px; }
+.outfit-picker-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.outfit-picker-heading h3 { color:var(--ink); font-size:15px; margin:0; }
+.outfit-picker-heading span { color:var(--muted); font-size:10px; }
+.outfit-item-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+.outfit-choice {
+  min-width:0; display:flex; align-items:center; gap:9px; padding:8px;
+  border:1px solid #e4d9ef; border-radius:12px; background:#fffafd; cursor:pointer;
+}
+.outfit-choice input { accent-color:var(--button-purple); flex:none; }
+.outfit-choice img { width:48px; height:56px; object-fit:cover; border-radius:7px; background:#f4eafa; }
+.outfit-choice span { min-width:0; }
+.outfit-choice strong,.outfit-choice small { display:block; overflow-wrap:anywhere; }
+.outfit-choice strong { color:var(--ink); font-size:10px; }
+.outfit-choice small { color:var(--muted); font-size:9px; margin-top:3px; }
+.outfit-no-items { grid-column:1/-1; padding:15px; background:#fff5fa; border-radius:12px; }
+.outfit-dialog { width:min(680px,calc(100% - 28px)); }
+@media(max-width:650px) {
+  .outfits-heading { align-items:flex-start; flex-direction:column; }
+  .outfits-grid { grid-template-columns:1fr; }
+  .outfit-item-choices { grid-template-columns:1fr; }
+}
