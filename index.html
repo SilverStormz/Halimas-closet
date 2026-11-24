@@ -34,6 +34,16 @@
       <button class="archive-tab" type="button" data-view="worn">Me Wearing It <span aria-hidden="true">✿</span></button>
     </nav>
 
+    <section class="backup-strip" aria-label="Back up your closet">
+      <div><strong>A little peace of mind ♡</strong><span>Save a copy of your closet and photos before syncing to the cloud.</span></div>
+      <div class="backup-actions">
+        <button class="add-button" id="exportBackup" type="button">Download backup</button>
+        <button class="backup-restore" id="importBackupButton" type="button">Restore a backup</button>
+        <input id="importBackupFile" type="file" accept="application/json,.json" hidden>
+      </div>
+      <p id="backupStatus" role="status" aria-live="polite"></p>
+    </section>
+
 
     <section class="outfits-section" id="outfitsSection" hidden>
       <div class="outfits-heading">
