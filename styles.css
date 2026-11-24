@@ -2053,3 +2053,19 @@ button, input, select, textarea, .field, .item-detail,
   .outfit-card:nth-child(n),
   .measurement-group:nth-child(n) { transform: none; }
 }
+
+
+/* LIGHT LAVENDER NEWSPRINT BACKGROUND */
+:root {
+  --window-canvas: #f2eef8;
+}
+body {
+  background-color: #f2eef8 !important;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='440' height='340' viewBox='0 0 440 340'%3E%3Cg fill='%237c6a91' fill-opacity='.075'%3E%3Ctext x='18' y='38' font-family='Georgia,serif' font-size='17' font-weight='bold' letter-spacing='2'%3ETHE STYLE JOURNAL%3C/text%3E%3Ctext x='20' y='57' font-family='Georgia,serif' font-size='7' letter-spacing='1'%3EFASHION  /  CULTURE  /  PERSONAL ARCHIVE%3C/text%3E%3Ctext x='248' y='103' font-family='Georgia,serif' font-size='13' font-style='italic'%3ECollected moments%3C/text%3E%3Ctext x='22' y='145' font-family='Georgia,serif' font-size='9' letter-spacing='1'%3EWARDROBE NOTES  •  DAILY EDITION%3C/text%3E%3Ctext x='180' y='190' font-family='Georgia,serif' font-size='18' font-weight='bold'%3EISSUE NO. 01%3C/text%3E%3Ctext x='22' y='246' font-family='Georgia,serif' font-size='10' font-style='italic'%3Ethe art of getting dressed%3C/text%3E%3C/g%3E%3Cg stroke='%237c6a91' stroke-opacity='.055' stroke-width='1'%3E%3Cpath d='M18 68h180 M18 75h155 M18 82h170 M18 155h130 M18 162h170 M18 169h150 M180 202h220 M180 209h205 M180 216h220 M18 260h175 M18 267h160 M18 274h185'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(circle, rgba(103, 83, 129, .11) .55px, transparent .9px),
+    repeating-linear-gradient(0deg, rgba(111, 91, 139, .025) 0 1px, transparent 1px 5px),
+    linear-gradient(135deg, #f5f1fa 0%, #eee8f5 48%, #f4eff9 100%) !important;
+  background-size: 440px 340px, 7px 7px, 100% 5px, cover !important;
+  background-attachment: fixed !important;
+}
