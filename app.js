@@ -315,7 +315,7 @@ document.getElementById("outfitPieceSearch").addEventListener("input", event => 
 outfitForm.addEventListener("submit", event => {
   event.preventDefault();
   const photo = outfitPhotoInput.files[0] ? outfitPhotoPreview.src : editingOutfitPhoto;
-  if (!photo) { alert("Please add a photo of this look first."); return; }
+  if (!photo && !editingOutfitId) { alert("Please add a photo of this look first."); return; }
   const itemIds = Array.from(document.querySelectorAll('input[name="outfitItems"]:checked')).map(input => input.value);
   const outfit = {
     id: editingOutfitId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
