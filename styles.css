@@ -363,6 +363,23 @@ h1 em {
   overflow-x: hidden;
   overscroll-behavior: contain;
   border-radius: 18px;
+  background: var(--white);
+  scrollbar-width: thin;
+  scrollbar-color: var(--pink) transparent;
+}
+
+.item-form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.item-form::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 18px;
+}
+
+.item-form::-webkit-scrollbar-thumb {
+  background: var(--pink);
+  border-radius: 18px;
 }
 
 
