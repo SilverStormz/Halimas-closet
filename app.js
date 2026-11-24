@@ -573,6 +573,10 @@ const HALIMA_SUPABASE_URL = "https://naatoomldeagsjzpzbmu.supabase.co";
 const HALIMA_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_tTdgopDPFvrEv8E_qdt_2Q_NKu93Dqi";
 const authClient = window.supabase.createClient(HALIMA_SUPABASE_URL, HALIMA_SUPABASE_PUBLISHABLE_KEY);
 const authPanel = document.getElementById("authPanel");
+const openAuthDialogButton = document.getElementById("openAuthDialog");
+const closeAuthDialogButton = document.getElementById("closeAuthDialog");
+openAuthDialogButton.addEventListener("click", () => { if (!authPanel.open) authPanel.showModal(); });
+closeAuthDialogButton.addEventListener("click", () => authPanel.close());
 const authForm = document.getElementById("authForm");
 const authStatus = document.getElementById("authStatus");
 const authSubmit = document.getElementById("authSubmit");
@@ -863,6 +867,7 @@ authClient.auth.onAuthStateChange((_event, session) => {
     resetPasswordForm.hidden = false;
     authForm.hidden = true;
     setCloudStatus("Choose a new password below to recover your account.");
+    if (!authPanel.open) authPanel.showModal();
   }
   const user = session?.user || null;
   applyOwnerView(user);
