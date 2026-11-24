@@ -127,7 +127,7 @@ function render() {
   grid.innerHTML = filtered.map(item => `
     <article class="item-card">
       <div class="item-photo">
-        <img src="${item.photo}" alt="${escapeHTML(item.name)}">
+        ${item.photo ? `<img src="${item.photo}" alt="${escapeHTML(item.name)}">` : `<div class="item-photo-placeholder" aria-label="Photo not added yet">♡<span>ADD PHOTO LATER</span></div>`}
         <button type="button" class="delete-button" data-delete="${escapeHTML(item.id)}" aria-label="Delete ${escapeHTML(item.name)}">×</button>
       </div>
       <div class="item-meta">
@@ -168,11 +168,11 @@ function openEditDialog(item) {
   document.getElementById("sizeInput").value = item.size || "";
   document.getElementById("notesInput").value = item.notes || "";
   photoInput.value = "";
-  photoPreview.src = item.photo;
-  photoPreview.hidden = false;
-  photoLabel.textContent = "Current photo (choose to replace)";
-  document.querySelector(".upload-icon").hidden = true;
-  document.querySelector(".photo-drop small").hidden = true;
+  photoPreview.src = item.photo || "";
+  photoPreview.hidden = !item.photo;
+  photoLabel.textContent = item.photo ? "Current photo (choose to replace)" : "Add a photograph";
+  document.querySelector(".upload-icon").hidden = !!item.photo;
+  document.querySelector(".photo-drop small").hidden = !!item.photo;
   document.querySelector("#itemForm .dialog-heading h2").textContent = "Edit a piece";
   document.querySelector("#itemForm .save-button").textContent = "Save changes";
   dialog.showModal();
@@ -226,7 +226,7 @@ function renderOutfitChoices(selectedIds = []) {
   choices.innerHTML = items.map(item => `
     <label class="outfit-choice">
       <input type="checkbox" name="outfitItems" value="${escapeHTML(item.id)}" ${selected.includes(String(item.id)) ? "checked" : ""}>
-      <img src="${item.photo}" alt="">
+      ${item.photo ? `<img src="${item.photo}" alt="">` : `<span class="outfit-choice-placeholder">♡</span>`}
       <span><strong>${escapeHTML(item.name)}</strong><small>${escapeHTML(item.brand || item.category || "")}</small></span>
     </label>`).join("");
   updateOutfitSelectedCount();
@@ -415,12 +415,39 @@ wishlistGrid.addEventListener("click", event => {
   if (!id) return;
   const wish = wishes.find(entry => entry.id === id);
   if (!wish) return;
-  const message = gotButton
-    ? `Move "${wish.name}" off your wish list? You can add it to your closet separately.`
-    : `Remove "${wish.name}" from your wish list?`;
-  if (!confirm(message)) return;
+  if (gotButton) {
+    const newItem = {
+      id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+      photo: "",
+      name: wish.name,
+      brand: wish.brand || "",
+      category: wish.category || "Other",
+      color: "",
+      size: "",
+      notes: [wish.notes, wish.price ? `Wishlist price: ${wish.price}` : "", wish.link ? `Product link: ${wish.link}` : ""].filter(Boolean).join("\\n")
+    };
+    const previousItems = [...items];
+    const previousWishes = [...wishes];
+    items.unshift(newItem);
+    if (!saveItems()) {
+      items = previousItems;
+      return;
+    }
+    wishes = wishes.filter(entry => entry.id !== id);
+    if (!saveWishes()) {
+      items = previousItems;
+      wishes = previousWishes;
+      saveItems();
+      return;
+    }
+    render();
+    renderWishes();
+    setView("closet");
+    return;
+  }
+  if (!confirm(`Remove "${wish.name}" from your wish list?`)) return;
   wishes = wishes.filter(entry => entry.id !== id);
-  saveWishes();
+  if (!saveWishes()) wishes.push(wish);
   renderWishes();
 });
 document.getElementById("openAddTop").addEventListener("click", openDialog);
@@ -454,7 +481,7 @@ photoInput.addEventListener("change", () => {
 form.addEventListener("submit", event => {
   event.preventDefault();
   const photo = photoInput.files[0] ? photoPreview.src : (editingItemId ? editingPhoto : "");
-  if (!photo) { alert("Please add a photo first."); return; }
+  // Wishlist transfers may be saved without a photo; one can be added later.
   const item = {
     id: editingItemId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     photo,
