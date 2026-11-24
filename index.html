@@ -31,6 +31,7 @@
       <button class="archive-tab" type="button" data-view="wishlist">Wish List <span aria-hidden="true">♡</span></button>
       <button class="archive-tab" type="button" data-view="measurements">My Measurements <span aria-hidden="true">✿</span></button>
       <button class="archive-tab" type="button" data-view="outfits">Outfit Diary <span aria-hidden="true">♡</span></button>
+      <button class="archive-tab" type="button" data-view="worn">Me Wearing It <span aria-hidden="true">✿</span></button>
     </nav>
 
 
@@ -49,6 +50,11 @@
       </div>
     </section>
 
+    <section class="worn-section" id="wornSection" hidden>
+      <div class="worn-heading"><div><p class="eyebrow">MY PERSONAL LOOKBOOK</p><h2>Me Wearing It <span>♡</span></h2></div><button class="add-button" id="openWornTop" type="button">＋ Add a photo</button></div>
+      <p class="worn-intro">A little collection of me in the pieces I love. Save outfit photos, remember where you wore them, and tag the pieces from your closet.</p>
+      <div class="worn-grid" id="wornGrid"></div><div class="worn-empty" id="wornEmpty"><div class="empty-mark">✿</div><h2>Your style, in real life.</h2><p>Add your first photo of you wearing a favourite look.</p><button class="add-button" id="openWornEmpty" type="button">＋ Add your first photo</button></div>
+    </section>
     <section class="measurements-section" id="measurementsSection" hidden>
       <div class="measurements-heading">
         <div><p class="eyebrow">MY PERSONAL SIZE GUIDE</p><h2>My Measurements <span>✿</span></h2></div>
@@ -230,6 +236,13 @@
     </form>
   </dialog>
 
+  <dialog class="item-dialog worn-dialog" id="wornDialog"><form id="wornForm" class="item-form">
+    <div class="dialog-heading"><div><p class="eyebrow">A MOMENT IN MY WARDROBE</p><h2 id="wornDialogTitle">Add a look photo</h2></div><button type="button" class="close-button" id="closeWornDialog" aria-label="Close">×</button></div>
+    <label class="photo-drop worn-photo-drop" for="wornPhotoInput"><span class="upload-icon" id="wornUploadIcon">＋</span><strong id="wornPhotoLabel">Add a photo of you wearing it</strong><small>Choose a photo from your camera roll or files</small><img id="wornPhotoPreview" alt="Your outfit photo preview" hidden></label><input id="wornPhotoInput" type="file" accept="image/*" required>
+    <div class="form-grid"><label class="field full">Look name<input id="wornName" required placeholder="e.g. Saturday in the city"></label><label class="field">Date<input id="wornDate" type="date"></label><label class="field">Occasion<input id="wornOccasion" placeholder="e.g. Dinner, work, everyday"></label><label class="field full">Notes<textarea id="wornNotes" rows="2" placeholder="Where you wore it, how you felt, styling details…"></textarea></label></div>
+    <div class="outfit-picker"><div class="outfit-picker-heading"><h3>Pieces I'm wearing (optional)</h3><span id="wornSelectedCount">0 selected</span></div><div id="wornItemChoices" class="outfit-item-choices"></div></div>
+    <p class="storage-note">Photos are saved in this browser on this device, not uploaded to an online account. Use smaller photos if browser storage runs low.</p><button class="save-button" type="submit">Save to my lookbook ♡</button>
+  </form></dialog>
   <script src="app.js"></script>
 </body>
 </html>
