@@ -26,7 +26,12 @@
       <p class="intro-copy">Just a way to track the chaos baby!</p>
     </section>
 
-    <section class="toolbar" aria-label="Wardrobe controls">
+    <nav class="archive-tabs" aria-label="Your archive sections">
+      <button class="archive-tab active" type="button" data-view="closet">My Closet</button>
+      <button class="archive-tab" type="button" data-view="wishlist">Wish List <span aria-hidden="true">♡</span></button>
+    </nav>
+
+    <section class="toolbar" id="closetToolbar" aria-label="Wardrobe controls">
       <div class="inventory-count"><strong id="itemCount">0</strong><span>PIECES IN YOUR ARCHIVE</span></div>
       <label class="search-wrap">
         <span aria-hidden="true">⌕</span>
@@ -48,6 +53,21 @@
     </nav>
 
     <section class="closet-grid" id="closetGrid" aria-live="polite"></section>
+    <section class="wishlist-section" id="wishlistSection" hidden>
+      <div class="wishlist-heading">
+        <div><p class="eyebrow">THE LITTLE THINGS I'M DREAMING OF</p><h2>On my wish list <span>♡</span></h2></div>
+        <button class="add-button" id="openWishTop" type="button">＋ Add a wish</button>
+      </div>
+      <p class="wishlist-intro">A little place for the pieces I'm keeping my eye on.</p>
+      <div class="wishlist-grid" id="wishlistGrid" aria-live="polite"></div>
+      <div class="wishlist-empty" id="wishlistEmpty">
+        <div class="empty-mark">♡</div>
+        <h2>Your next loves go here.</h2>
+        <p>Save the pieces you're dreaming about, all in one pretty place.</p>
+        <button class="add-button" id="openWishEmpty" type="button">＋ Add your first wish</button>
+      </div>
+    </section>
+
     <section class="empty-state" id="emptyState">
       <div class="empty-mark">H/C</div>
       <h2>Your archive starts here.</h2>
@@ -86,6 +106,31 @@
       </div>
       <p class="storage-note">Your entries are saved in this browser on this device. This starter version does not sync between devices yet.</p>
       <button class="save-button" type="submit">Save to my closet</button>
+    </form>
+  </dialog>
+
+  <dialog class="item-dialog wish-dialog" id="wishDialog">
+    <form id="wishForm" class="item-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">A LITTLE SOMETHING TO LOOK FORWARD TO</p><h2>Add to my wish list</h2></div>
+        <button type="button" class="close-button" id="closeWishDialog" aria-label="Close">×</button>
+      </div>
+      <div class="form-grid">
+        <label class="field full">What are you wishing for?<input id="wishName" required placeholder="e.g. The perfect chocolate brown bag"></label>
+        <label class="field">Brand<input id="wishBrand" placeholder="Optional"></label>
+        <label class="field">Category
+          <select id="wishCategory">
+            <option value="">Choose category</option>
+            <option>Bags</option><option>Shoes</option><option>Tops</option><option>Bottoms</option>
+            <option>Dresses</option><option>Outerwear</option><option>Jewellery</option>
+            <option>Accessories</option><option>Sunglasses</option><option>Other</option>
+          </select>
+        </label>
+        <label class="field">Price / budget<input id="wishPrice" placeholder="e.g. $250 CAD"></label>
+        <label class="field">Link to item<input id="wishLink" type="url" placeholder="https://…"></label>
+        <label class="field full">Notes<textarea id="wishNotes" rows="3" placeholder="Colour, details, why it's on your list…"></textarea></label>
+      </div>
+      <button class="save-button" type="submit">Save to my wish list ♡</button>
     </form>
   </dialog>
 
