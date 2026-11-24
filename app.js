@@ -46,6 +46,7 @@ function loadWishes() {
 function saveWishes() {
   try {
     localStorage.setItem(WISH_STORAGE_KEY, JSON.stringify(wishes));
+    queueCloudSync("wishlist_items");
     return true;
   } catch {
     alert("Your browser storage is full. Try removing a few saved wishes.");
@@ -106,6 +107,7 @@ function loadItems() {
 function saveItems() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    queueCloudSync("closet_items");
     return true;
   } catch (error) {
     alert("Your browser storage is full. Try using a smaller image.");
@@ -184,6 +186,7 @@ function loadOutfits() {
 function saveOutfits() {
   try {
     localStorage.setItem(OUTFITS_STORAGE_KEY, JSON.stringify(outfits));
+    queueCloudSync("outfits");
     return true;
   } catch {
     alert("Your browser storage is full. Try removing an outfit or using smaller item photos.");
@@ -285,7 +288,11 @@ measurementsForm.addEventListener("submit", event => {
   try {
     localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(profile));
     const status = document.getElementById("measurementsSaved");
-    status.textContent = "Your sizing profile is saved ♡";
+    status.textContent = "Your sizing profile is saved on this device ♡";
+    if (signedInUser && cloudReady) {
+      syncMeasurements(profile).then(() => { status.textContent = "Your private sizing profile is saved and synced ♡"; })
+        .catch(error => { status.textContent = "Saved on this device, but cloud sync needs attention: " + error.message; });
+    }
   } catch {
     alert("Your browser storage is full. Please try again.");
   }
@@ -544,7 +551,7 @@ document.getElementById("importBackupFile").addEventListener("change", async eve
 });
 
 
-// HALIMAS SUPABASE AUTH
+// HALIMAS SUPABASE AUTH + CLOUD SYNC
 // The publishable key is intended for browser use. Database RLS policies enforce access.
 const HALIMA_SUPABASE_URL = "https://naatoomldeagsjzpzbmu.supabase.co";
 const HALIMA_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_tTdgopDPFvrEv8E_qdt_2Q_NKu93Dqi";
@@ -556,6 +563,10 @@ const authSubmit = document.getElementById("authSubmit");
 const authSignUp = document.getElementById("authSignUp");
 const authSignOut = document.getElementById("authSignOut");
 let signedInUser = null;
+let cloudReady = false;
+let cloudInitPromise = null;
+let cloudSyncQueue = Promise.resolve();
+let cloudInitializing = false;
 
 function applyOwnerView(user) {
   signedInUser = user || null;
@@ -565,44 +576,240 @@ function applyOwnerView(user) {
   authSignOut.hidden = !signedInUser;
   document.getElementById("authHeading").textContent = signedInUser ? "Your closet is unlocked ♡" : "Sign in to manage your closet";
   document.getElementById("authMessage").textContent = signedInUser
-    ? "Signed in as " + signedInUser.email + ". Owner editing controls are available."
+    ? "Signed in as " + signedInUser.email + ". Your wardrobe will sync across devices."
     : "You can browse the shared archive. Sign in with your email to manage your pieces and outfits.";
   document.querySelector('[data-view="measurements"]').hidden = !signedInUser;
   if (!signedInUser && activeView === "measurements") setView("closet");
 }
+
+function setCloudStatus(message) {
+  if (authStatus) authStatus.textContent = message;
+}
+
+function saveLocalCollection(key, records) {
+  try { localStorage.setItem(key, JSON.stringify(records)); } catch (error) {
+    console.warn("Could not cache cloud data locally:", error);
+  }
+}
+
+function mergeRecords(cloudRecords, localRecords) {
+  const merged = new Map();
+  (localRecords || []).forEach(record => merged.set(String(record.id), record));
+  (cloudRecords || []).forEach(record => merged.set(String(record.id), record));
+  return Array.from(merged.values());
+}
+
+async function uploadPhotoIfNeeded(photo, collection, recordId) {
+  if (!photo || typeof photo !== "string" || !photo.startsWith("data:")) return photo || "";
+  const response = await fetch(photo);
+  const blob = await response.blob();
+  const extension = (blob.type.split("/")[1] || "jpg").replace("jpeg", "jpg").replace(/[^a-z0-9]/gi, "");
+  const safeId = String(recordId || crypto.randomUUID()).replace(/[^a-z0-9_-]/gi, "_");
+  const path = signedInUser.id + "/" + collection + "/" + safeId + "." + (extension || "jpg");
+  const { error } = await authClient.storage.from("wardrobe-photos").upload(path, blob, {
+    upsert: true,
+    contentType: blob.type || "image/jpeg"
+  });
+  if (error) throw error;
+  const { data } = authClient.storage.from("wardrobe-photos").getPublicUrl(path);
+  return data.publicUrl;
+}
+
+async function prepareCloudRecord(record, collection) {
+  const copy = { ...record };
+  if (copy.photo && String(copy.photo).startsWith("data:")) {
+    copy.photo = await uploadPhotoIfNeeded(copy.photo, collection, copy.id);
+  }
+  return copy;
+}
+
+async function syncCollection(table, records, collection) {
+  if (!signedInUser) return;
+  const userId = signedInUser.id;
+  const prepared = [];
+  for (const record of records) {
+    prepared.push({
+      user_id: userId,
+      legacy_id: String(record.id),
+      data: await prepareCloudRecord(record, collection),
+      is_public: true
+    });
+  }
+  if (prepared.length) {
+    const { error } = await authClient.from(table).upsert(prepared, { onConflict: "user_id,legacy_id" });
+    if (error) throw error;
+  }
+  const { data: existing, error: readError } = await authClient.from(table)
+    .select("legacy_id").eq("user_id", userId);
+  if (readError) throw readError;
+  const keep = new Set(prepared.map(row => row.legacy_id));
+  for (const row of (existing || [])) {
+    if (!keep.has(String(row.legacy_id))) {
+      const { error } = await authClient.from(table).delete()
+        .eq("user_id", userId).eq("legacy_id", row.legacy_id);
+      if (error) throw error;
+    }
+  }
+}
+
+async function syncMeasurements(profile) {
+  if (!signedInUser) return;
+  const { error } = await authClient.from("measurements").upsert({
+    user_id: signedInUser.id,
+    legacy_id: "profile",
+    data: profile,
+    is_public: false
+  }, { onConflict: "user_id,legacy_id" });
+  if (error) throw error;
+}
+
+function queueCloudSync(collection) {
+  if (!signedInUser || !cloudReady || cloudInitializing) return;
+  cloudSyncQueue = cloudSyncQueue.then(async () => {
+    setCloudStatus("Saving your changes to your private cloud…");
+    if (collection === "closet_items") await syncCollection("closet_items", items, "closet");
+    if (collection === "wishlist_items") await syncCollection("wishlist_items", wishes, "wishlist");
+    if (collection === "outfits") await syncCollection("outfits", outfits, "outfits");
+    setCloudStatus("Your changes are saved and synced ♡");
+  }).catch(error => {
+    console.error("Halima's Closet cloud sync failed:", error);
+    setCloudStatus("Your changes are saved on this device, but cloud sync needs attention: " + error.message);
+  });
+}
+
+async function loadPublicArchive() {
+  try {
+    const [closetResult, wishResult, outfitResult] = await Promise.all([
+      authClient.from("closet_items").select("data").eq("is_public", true),
+      authClient.from("wishlist_items").select("data").eq("is_public", true),
+      authClient.from("outfits").select("data").eq("is_public", true)
+    ]);
+    for (const result of [closetResult, wishResult, outfitResult]) {
+      if (result.error) throw result.error;
+    }
+    items = (closetResult.data || []).map(row => row.data).filter(Boolean);
+    wishes = (wishResult.data || []).map(row => row.data).filter(Boolean);
+    outfits = (outfitResult.data || []).map(row => row.data).filter(Boolean);
+    saveLocalCollection(STORAGE_KEY, items);
+    saveLocalCollection(WISH_STORAGE_KEY, wishes);
+    saveLocalCollection(OUTFITS_STORAGE_KEY, outfits);
+    render();
+    renderWishes();
+    renderOutfits();
+    if (activeView === "outfits") setView("outfits");
+  } catch (error) {
+    console.error("Could not load the public closet archive:", error);
+  }
+}
+
+async function initializeCloudData(user) {
+  if (!user) {
+    cloudReady = false;
+    await loadPublicArchive();
+    return;
+  }
+  if (cloudInitPromise) return cloudInitPromise;
+  cloudInitPromise = (async () => {
+    cloudInitializing = true;
+    cloudReady = false;
+    setCloudStatus("Connecting your closet to the cloud…");
+    try {
+      const [closetResult, wishResult, outfitResult, measureResult] = await Promise.all([
+        authClient.from("closet_items").select("legacy_id,data").eq("user_id", user.id),
+        authClient.from("wishlist_items").select("legacy_id,data").eq("user_id", user.id),
+        authClient.from("outfits").select("legacy_id,data").eq("user_id", user.id),
+        authClient.from("measurements").select("data").eq("user_id", user.id).eq("legacy_id", "profile").maybeSingle()
+      ]);
+      for (const result of [closetResult, wishResult, outfitResult, measureResult]) {
+        if (result.error) throw result.error;
+      }
+      const cloudItems = (closetResult.data || []).map(row => row.data).filter(Boolean);
+      const cloudWishes = (wishResult.data || []).map(row => row.data).filter(Boolean);
+      const cloudOutfits = (outfitResult.data || []).map(row => row.data).filter(Boolean);
+      const hasCloudArchive = cloudItems.length + cloudWishes.length + cloudOutfits.length > 0;
+      if (hasCloudArchive) {
+        items = mergeRecords(cloudItems, items);
+        wishes = mergeRecords(cloudWishes, wishes);
+        outfits = mergeRecords(cloudOutfits, outfits);
+      }
+      saveLocalCollection(STORAGE_KEY, items);
+      saveLocalCollection(WISH_STORAGE_KEY, wishes);
+      saveLocalCollection(OUTFITS_STORAGE_KEY, outfits);
+      if (measureResult.data?.data) {
+        localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(measureResult.data.data));
+        populateMeasurements();
+      }
+      // First login migrates the existing browser data. Later logins merge local and cloud records.
+      await syncCollection("closet_items", items, "closet");
+      await syncCollection("wishlist_items", wishes, "wishlist");
+      await syncCollection("outfits", outfits, "outfits");
+      const profile = loadMeasurements();
+      if (Object.values(profile).some(value => String(value || "").trim())) {
+        await syncMeasurements(profile);
+      }
+      cloudReady = true;
+      setCloudStatus("Your closet is backed up and synced ♡");
+      render();
+      renderWishes();
+      renderOutfits();
+    } catch (error) {
+      console.error("Halima's Closet cloud setup failed:", error);
+      setCloudStatus("Cloud connection needs attention: " + error.message + ". Your original browser data is still saved.");
+    } finally {
+      cloudInitializing = false;
+      cloudInitPromise = null;
+    }
+  })();
+  return cloudInitPromise;
+}
+
 authForm.addEventListener("submit", async event => {
   event.preventDefault();
-  authStatus.textContent = "Signing in…";
+  setCloudStatus("Signing in…");
   const { data, error } = await authClient.auth.signInWithPassword({
     email: document.getElementById("authEmail").value.trim(),
     password: document.getElementById("authPassword").value
   });
-  if (error) { authStatus.textContent = error.message; return; }
+  if (error) { setCloudStatus(error.message); return; }
   applyOwnerView(data.user);
-  authStatus.textContent = "You're signed in ♡";
+  await initializeCloudData(data.user);
 });
 authSignUp.addEventListener("click", async () => {
-  authStatus.textContent = "Creating your account…";
+  setCloudStatus("Creating your account…");
   const { data, error } = await authClient.auth.signUp({
     email: document.getElementById("authEmail").value.trim(),
     password: document.getElementById("authPassword").value,
     options: { emailRedirectTo: "https://silverstormz.github.io/Halimas-closet/" }
   });
-  if (error) { authStatus.textContent = error.message; return; }
-  authStatus.textContent = data.session
-    ? "Your account is ready. You're signed in ♡"
-    : "Check your inbox for the confirmation email, then return here to sign in.";
-  if (data.user && data.session) applyOwnerView(data.user);
+  if (error) { setCloudStatus(error.message); return; }
+  setCloudStatus(data.session
+    ? "Your account is ready. Connecting your closet…"
+    : "Check your inbox for the confirmation email, then return here to sign in.");
+  if (data.user && data.session) {
+    applyOwnerView(data.user);
+    await initializeCloudData(data.user);
+  }
 });
 authSignOut.addEventListener("click", async () => {
-  authStatus.textContent = "Signing out…";
+  setCloudStatus("Signing out…");
   const { error } = await authClient.auth.signOut();
-  if (error) { authStatus.textContent = error.message; return; }
+  if (error) { setCloudStatus(error.message); return; }
   applyOwnerView(null);
-  authStatus.textContent = "You've signed out.";
+  setCloudStatus("You've signed out. The public archive remains available.");
+  await loadPublicArchive();
 });
-authClient.auth.getSession().then(({ data, error }) => {
-  if (error) authStatus.textContent = error.message;
-  applyOwnerView(data?.session?.user || null);
+authClient.auth.getSession().then(async ({ data, error }) => {
+  if (error) setCloudStatus(error.message);
+  const user = data?.session?.user || null;
+  applyOwnerView(user);
+  await initializeCloudData(user);
 });
-authClient.auth.onAuthStateChange((_event, session) => applyOwnerView(session?.user || null));
+authClient.auth.onAuthStateChange((_event, session) => {
+  const user = session?.user || null;
+  applyOwnerView(user);
+  if (user && !cloudReady && !cloudInitPromise) initializeCloudData(user);
+  if (!user) {
+    cloudReady = false;
+    loadPublicArchive();
+  }
+});
