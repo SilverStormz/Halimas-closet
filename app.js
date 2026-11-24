@@ -542,3 +542,67 @@ document.getElementById("importBackupFile").addEventListener("change", async eve
     event.target.value = "";
   }
 });
+
+
+// HALIMAS SUPABASE AUTH
+// The publishable key is intended for browser use. Database RLS policies enforce access.
+const HALIMA_SUPABASE_URL = "https://naatoomldeagsjzpzbmu.supabase.co";
+const HALIMA_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_tTdgopDPFvrEv8E_qdt_2Q_NKu93Dqi";
+const authClient = window.supabase.createClient(HALIMA_SUPABASE_URL, HALIMA_SUPABASE_PUBLISHABLE_KEY);
+const authPanel = document.getElementById("authPanel");
+const authForm = document.getElementById("authForm");
+const authStatus = document.getElementById("authStatus");
+const authSubmit = document.getElementById("authSubmit");
+const authSignUp = document.getElementById("authSignUp");
+const authSignOut = document.getElementById("authSignOut");
+let signedInUser = null;
+
+function applyOwnerView(user) {
+  signedInUser = user || null;
+  document.body.classList.toggle("is-owner", !!signedInUser);
+  authSubmit.hidden = !!signedInUser;
+  authSignUp.hidden = !!signedInUser;
+  authSignOut.hidden = !signedInUser;
+  document.getElementById("authHeading").textContent = signedInUser ? "Your closet is unlocked ♡" : "Sign in to manage your closet";
+  document.getElementById("authMessage").textContent = signedInUser
+    ? "Signed in as " + signedInUser.email + ". Owner editing controls are available."
+    : "You can browse the shared archive. Sign in with your email to manage your pieces and outfits.";
+  document.querySelector('[data-view="measurements"]').hidden = !signedInUser;
+  if (!signedInUser && activeView === "measurements") setView("closet");
+}
+authForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  authStatus.textContent = "Signing in…";
+  const { data, error } = await authClient.auth.signInWithPassword({
+    email: document.getElementById("authEmail").value.trim(),
+    password: document.getElementById("authPassword").value
+  });
+  if (error) { authStatus.textContent = error.message; return; }
+  applyOwnerView(data.user);
+  authStatus.textContent = "You're signed in ♡";
+});
+authSignUp.addEventListener("click", async () => {
+  authStatus.textContent = "Creating your account…";
+  const { data, error } = await authClient.auth.signUp({
+    email: document.getElementById("authEmail").value.trim(),
+    password: document.getElementById("authPassword").value,
+    options: { emailRedirectTo: "https://silverstormz.github.io/Halimas-closet/" }
+  });
+  if (error) { authStatus.textContent = error.message; return; }
+  authStatus.textContent = data.session
+    ? "Your account is ready. You're signed in ♡"
+    : "Check your inbox for the confirmation email, then return here to sign in.";
+  if (data.user && data.session) applyOwnerView(data.user);
+});
+authSignOut.addEventListener("click", async () => {
+  authStatus.textContent = "Signing out…";
+  const { error } = await authClient.auth.signOut();
+  if (error) { authStatus.textContent = error.message; return; }
+  applyOwnerView(null);
+  authStatus.textContent = "You've signed out.";
+});
+authClient.auth.getSession().then(({ data, error }) => {
+  if (error) authStatus.textContent = error.message;
+  applyOwnerView(data?.session?.user || null);
+});
+authClient.auth.onAuthStateChange((_event, session) => applyOwnerView(session?.user || null));
