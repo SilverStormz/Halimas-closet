@@ -1469,3 +1469,13 @@ body:not(.is-owner) #measurementsSection { display: none !important; }
   text-decoration: underline;
   cursor: pointer;
 }
+
+
+/* Clear second-tap confirmation for mobile Outfit Diary deletion */
+.outfit-actions button.delete-confirming {
+  background: #fff0f5;
+  border-color: #d879a8;
+  color: #8e3f70;
+  white-space: normal;
+  line-height: 1.35;
+}
