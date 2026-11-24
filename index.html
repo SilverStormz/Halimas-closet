@@ -1,1394 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f3ed">
+  <title>Halima's Closet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="wordmark" href="#" aria-label="Halima's Closet home">HALIMA'S <span>CLOSET</span></a>
+    <div class="topbar-right">
+      <span class="edition">THE PERSONAL ARCHIVE</span>
+      <button class="add-button" id="openAddTop">＋ <span>Add a piece</span></button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro">
+      <p class="eyebrow">Welcome to my style</p>
+      <h1>Lima's Closet.</em></h1>
+      <p class="intro-copy">Just a way to track the chaos baby!</p>
+    </section>
+
+    <nav class="archive-tabs" aria-label="Your archive sections">
+      <button class="archive-tab active" type="button" data-view="closet">My Closet</button>
+      <button class="archive-tab" type="button" data-view="wishlist">Wish List <span aria-hidden="true">♡</span></button>
+      <button class="archive-tab" type="button" data-view="measurements">My Measurements <span aria-hidden="true">✿</span></button>
+      <button class="archive-tab" type="button" data-view="outfits">Outfit Diary <span aria-hidden="true">♡</span></button>
+    </nav>
+
+    <section class="backup-strip" aria-label="Back up your closet">
+      <div><strong>A little peace of mind ♡</strong><span>Save a copy of your closet and photos before syncing to the cloud.</span></div>
+      <div class="backup-actions">
+        <button class="add-button" id="exportBackup" type="button">Download backup</button>
+        <button class="backup-restore" id="importBackupButton" type="button">Restore a backup</button>
+        <input id="importBackupFile" type="file" accept="application/json,.json" hidden>
+      </div>
+      <p id="backupStatus" role="status" aria-live="polite"></p>
+    </section>
+
+
+    <section class="outfits-section" id="outfitsSection" hidden>
+      <div class="outfits-heading">
+        <div><p class="eyebrow">THE LOOKS I LOVE</p><h2>My Outfit Diary <span>♡</span></h2></div>
+        <button class="add-button" id="openOutfitTop" type="button">＋ Create an outfit</button>
+      </div>
+      <p class="outfits-intro">Save photos of your real-life looks, tag pieces from your closet, and remember where and when you wore them.</p>
+      <div class="outfits-grid" id="outfitsGrid" aria-live="polite"></div>
+      <div class="outfits-empty" id="outfitsEmpty">
+        <div class="empty-mark">♡</div>
+        <h2>Your next favourite look starts here.</h2>
+        <p>Add a photo of a look, then tag any pieces from your closet if you like.</p>
+        <button class="add-button" id="openOutfitEmpty" type="button">＋ Create your first outfit</button>
+      </div>
+    </section>
+
+    <section class="measurements-section" id="measurementsSection" hidden>
+      <div class="measurements-heading">
+        <div><p class="eyebrow">MY PERSONAL SIZE GUIDE</p><h2>My Measurements <span>✿</span></h2></div>
+        <p class="measurements-intro">A little reference for shopping, styling and finding the right fit.</p>
+      </div>
+      <form id="measurementsForm" class="measurements-form">
+        <div class="measurement-group">
+          <h3>My body measurements</h3>
+          <p>Keep your measurements in your preferred units.</p>
+          <div class="measurement-grid">
+            <label class="field">Height<input id="measureHeight" placeholder="e.g. 5 ft 4 in"></label>
+            <label class="field">Weight<input id="measureWeight" placeholder="e.g. 240 lb"></label>
+            <label class="field">Bust<input id="measureBust" placeholder="e.g. 42 in"></label>
+            <label class="field">Waist<input id="measureWaist" placeholder="e.g. 36 in"></label>
+            <label class="field">Hips<input id="measureHips" placeholder="e.g. 48 in"></label>
+            <label class="field">Inseam<input id="measureInseam" placeholder="e.g. 30 in"></label>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <h3>Clothing sizes</h3>
+          <p>Save your usual sizes by category or brand.</p>
+          <div class="measurement-grid">
+            <label class="field">Tops<input id="sizeTops" placeholder="e.g. XL / 16"></label>
+            <label class="field">Bottoms<input id="sizeBottoms" placeholder="e.g. 18 / 2X"></label>
+            <label class="field">Dresses<input id="sizeDresses" placeholder="e.g. 18 / 2X"></label>
+            <label class="field">Outerwear<input id="sizeOuterwear" placeholder="e.g. 2X"></label>
+            <label class="field">Bra size<input id="sizeBra" placeholder="e.g. 40G"></label>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <h3>Accessories & extras</h3>
+          <p>For the little details that make all the difference.</p>
+          <div class="measurement-grid">
+            <label class="field">Shoes<input id="sizeShoes" placeholder="e.g. US 9"></label>
+            <label class="field">Rings<input id="sizeRings" placeholder="e.g. US 7"></label>
+            <label class="field">Bracelet / wrist<input id="sizeBracelet" placeholder="e.g. 7 in"></label>
+            <label class="field">Necklace length<input id="sizeNecklace" placeholder="e.g. 18 in"></label>
+            <label class="field">Belt<input id="sizeBelt" placeholder="e.g. 38 in"></label>
+            <label class="field">Hat / head<input id="sizeHat" placeholder="e.g. 22 in"></label>
+          </div>
+        </div>
+        <label class="field measurement-notes">Fit notes<textarea id="measureNotes" rows="3" placeholder="Preferred fit, sizing differences between brands, or anything useful to remember…"></textarea></label>
+        <div class="measurements-footer">
+          <span id="measurementsSaved" aria-live="polite">Saved privately in this browser.</span>
+          <button class="save-button" type="submit">Save my sizing profile ✿</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="toolbar" id="closetToolbar" aria-label="Wardrobe controls">
+      <div class="inventory-count"><strong id="itemCount">0</strong><span>PIECES IN YOUR ARCHIVE</span></div>
+      <label class="search-wrap">
+        <span aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" placeholder="Search your closet…" aria-label="Search your closet">
+      </label>
+    </section>
+
+    <nav class="category-nav" id="categoryNav" aria-label="Filter by category">
+      <button class="category-chip active" data-category="All">All pieces</button>
+      <button class="category-chip" data-category="Bags">Bags</button>
+      <button class="category-chip" data-category="Shoes">Shoes</button>
+      <button class="category-chip" data-category="Tops">Tops</button>
+      <button class="category-chip" data-category="Bottoms">Bottoms</button>
+      <button class="category-chip" data-category="Dresses">Dresses</button>
+      <button class="category-chip" data-category="Outerwear">Outerwear</button>
+      <button class="category-chip" data-category="Jewellery">Jewellery</button>
+      <button class="category-chip" data-category="Accessories">Accessories</button>
+      <button class="category-chip" data-category="Sunglasses">Sunglasses</button>
+    </nav>
+
+    <section class="closet-grid" id="closetGrid" aria-live="polite"></section>
+    <section class="wishlist-section" id="wishlistSection" hidden>
+      <div class="wishlist-heading">
+        <div><p class="eyebrow">THE LITTLE THINGS I'M DREAMING OF</p><h2>On my wish list <span>♡</span></h2></div>
+        <button class="add-button" id="openWishTop" type="button">＋ Add a wish</button>
+      </div>
+      <p class="wishlist-intro">A little place for the pieces I'm keeping my eye on.</p>
+      <div class="wishlist-grid" id="wishlistGrid" aria-live="polite"></div>
+      <div class="wishlist-empty" id="wishlistEmpty">
+        <div class="empty-mark">♡</div>
+        <h2>Your next loves go here.</h2>
+        <p>Save the pieces you're dreaming about, all in one pretty place.</p>
+        <button class="add-button" id="openWishEmpty" type="button">＋ Add your first wish</button>
+      </div>
+    </section>
+
+    <section class="empty-state" id="emptyState">
+      <div class="empty-mark">H/C</div>
+      <h2>Your archive starts here.</h2>
+      <p>Add a photograph of a piece from your closet. Your wardrobe will begin to take shape here.</p>
+      <button class="add-button" id="openAddEmpty">＋ Add your first piece</button>
+    </section>
+  </main>
+
+  <dialog class="item-dialog" id="itemDialog">
+    <form id="itemForm" class="item-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">GROW YOUR ARCHIVE</p><h2>Add a piece</h2></div>
+        <button type="button" class="close-button" id="closeDialog" aria-label="Close">×</button>
+      </div>
+      <label class="photo-drop" for="photoInput">
+        <span class="upload-icon">＋</span>
+        <strong id="photoLabel">Add a photograph</strong>
+        <small>Choose from your camera roll or files</small>
+        <img id="photoPreview" alt="Selected item preview" hidden>
+      </label>
+      <input id="photoInput" type="file" accept="image/*" capture="environment">
+      <div class="form-grid">
+        <label class="field full">Item name<input id="nameInput" required placeholder="e.g. Leather shoulder bag"></label>
+        <label class="field">Brand<input id="brandInput" placeholder="e.g. Prada"></label>
+        <label class="field">Category
+          <select id="categoryInput" required>
+            <option value="">Choose category</option>
+            <option>Bags</option><option>Shoes</option><option>Tops</option><option>Bottoms</option>
+            <option>Dresses</option><option>Outerwear</option><option>Jewellery</option>
+            <option>Accessories</option><option>Sunglasses</option>
+          </select>
+        </label>
+        <label class="field">Colour<input id="colorInput" placeholder="e.g. Chocolate brown"></label>
+        <label class="field">Size<input id="sizeInput" placeholder="Optional"></label>
+        <label class="field full">Notes<textarea id="notesInput" rows="3" placeholder="Fit, material, occasion, styling notes…"></textarea></label>
+      </div>
+      <p class="storage-note">Your entries are saved in this browser on this device. This starter version does not sync between devices yet.</p>
+      <button class="save-button" type="submit">Save to my closet</button>
+    </form>
+  </dialog>
+
+  <dialog class="item-dialog wish-dialog" id="wishDialog">
+    <form id="wishForm" class="item-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">A LITTLE SOMETHING TO LOOK FORWARD TO</p><h2>Add to my wish list</h2></div>
+        <button type="button" class="close-button" id="closeWishDialog" aria-label="Close">×</button>
+      </div>
+      <div class="form-grid">
+        <label class="field full">What are you wishing for?<input id="wishName" required placeholder="e.g. The perfect chocolate brown bag"></label>
+        <label class="field">Brand<input id="wishBrand" placeholder="Optional"></label>
+        <label class="field">Category
+          <select id="wishCategory">
+            <option value="">Choose category</option>
+            <option>Bags</option><option>Shoes</option><option>Tops</option><option>Bottoms</option>
+            <option>Dresses</option><option>Outerwear</option><option>Jewellery</option>
+            <option>Accessories</option><option>Sunglasses</option><option>Other</option>
+          </select>
+        </label>
+        <label class="field">Price / budget<input id="wishPrice" placeholder="e.g. $250 CAD"></label>
+        <label class="field">Link to item<input id="wishLink" type="url" placeholder="https://…"></label>
+        <label class="field full">Notes<textarea id="wishNotes" rows="3" placeholder="Colour, details, why it's on your list…"></textarea></label>
+      </div>
+      <button class="save-button" type="submit">Save to my wish list ♡</button>
+    </form>
+  </dialog>
+
+
+  <dialog class="item-dialog outfit-dialog" id="outfitDialog">
+    <form id="outfitForm" class="item-form">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">PUT THE LOOK TOGETHER</p><h2 id="outfitDialogTitle">Create an outfit</h2></div>
+        <button type="button" class="close-button" id="closeOutfitDialog" aria-label="Close">×</button>
+      </div>
+      <label class="photo-drop outfit-photo-drop" for="outfitPhotoInput"><span class="upload-icon" id="outfitUploadIcon">＋</span><strong id="outfitPhotoLabel">Add a photo of you wearing this look</strong><small>Choose a photo from your camera roll or files</small><img id="outfitPhotoPreview" alt="Outfit photo preview" hidden></label>
+      <input id="outfitPhotoInput" type="file" accept="image/*" required>
+      <div class="form-grid">
+        <label class="field full">Outfit name<input id="outfitName" required placeholder="e.g. Dinner with the girls"></label>
+        <label class="field">Occasion
+          <select id="outfitOccasion">
+            <option value="">Choose an occasion</option>
+            <option>Everyday</option><option>Work</option><option>Date night</option><option>Going out</option>
+            <option>Wedding / Event</option><option>Vacation</option><option>Special occasion</option><option>Other</option>
+          </select>
+        </label>
+        <label class="field">Date worn<input id="outfitDate" type="date"></label>
+        <label class="field full">Outfit notes<textarea id="outfitNotes" rows="2" placeholder="How you styled it, where you wore it, or ideas for next time…"></textarea></label>
+      </div>
+      <div class="outfit-picker">
+        <div class="outfit-picker-heading"><h3>Choose pieces from My Closet</h3><span id="outfitSelectedCount">0 selected</span></div>
+        <label class="outfit-search-wrap"><span aria-hidden="true">⌕</span><input id="outfitPieceSearch" type="search" placeholder="Search your closet pieces…" aria-label="Search pieces in your closet"></label>
+        <div id="outfitItemChoices" class="outfit-item-choices"></div>
+        <p id="outfitSearchNoResults" class="outfit-no-results" hidden>No pieces match your search.</p>
+      </div>
+      <button class="save-button" type="submit">Save this outfit ♡</button>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
 
-
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --paper: #f5f8ec;
-  --ink: #354b3c;
-  --muted: #778b79;
-  --line: #d9e5cb;
-  --accent: #a8c98c;
-  --pink: #ef9fc6;
-  --lavender: #c9c2e8;
-  --lime: #b9d99a;
-  --white: #fffefa;
-  --deep-pink: #df82b2;
-  --leaf: #729b69;
-  --sage: #dcebd0;
-}
-
-body {
-  margin: 0;
-  background-color: var(--paper);
-  background-image:
-    linear-gradient(90deg, rgba(166, 198, 145, .15) 50%, transparent 50%),
-    linear-gradient(rgba(166, 198, 145, .15) 50%, transparent 50%),
-    radial-gradient(circle, rgba(239, 159, 198, .24) 1.2px, transparent 1.5px);
-  background-size: 34px 34px, 34px 34px, 17px 17px;
-  background-position: 0 0, 0 0, 8px 8px;
-  color: var(--ink);
-  font-family: "Mali", sans-serif;
-}
-
-/* HEADER */
-
-.topbar {
-  min-height: 76px;
-  padding: 0 6.5%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 2px solid var(--line);
-  background: rgba(255, 254, 250, .94);
-}
-
-.wordmark {
-  color: var(--ink);
-  text-decoration: none;
-  font-family: "Mali", sans-serif;
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: .12em;
-}
-
-.wordmark span {
-  color: var(--deep-pink);
-  font-weight: 600;
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-}
-
-.edition,
-.eyebrow,
-.inventory-count span {
-  font-size: 10px;
-  letter-spacing: .16em;
-  color: var(--muted);
-  text-transform: uppercase;
-}
-
-/* BUTTONS */
-
-.add-button {
-  border: 2px solid var(--pink);
-  background: var(--pink);
-  color: white;
-  padding: 12px 19px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  border-radius: 30px;
-  box-shadow: 3px 4px 0 #e9c1df;
-  transition: .2s ease;
-}
-
-.add-button:hover,
-.save-button:hover {
-  background: var(--deep-pink);
-  transform: translateY(-2px);
-}
-
-/* MAIN LAYOUT */
-
-.page-shell {
-  max-width: 1280px;
-  margin: auto;
-  padding: 0 6.5% 90px;
-}
-
-.intro {
-  position: relative;
-  padding: 76px 0 54px;
-}
-
-.intro::before,
-.intro::after {
-  content: "";
-  position: absolute;
-  width: 76px;
-  height: 76px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  opacity: .82;
-  pointer-events: none;
-}
-.intro::before {
-  left: 8%;
-  top: 58px;
-  transform: rotate(-12deg);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%23729b69' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 39h56l-5 46H27z'/%3E%3Cpath d='M35 40c0-22 30-22 30 0'/%3E%3Cpath d='M36 57h28M50 52v10'/%3E%3C/g%3E%3C/svg%3E");
-}
-.intro::after {
-  right: 10%;
-  top: 48px;
-  transform: rotate(10deg);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M14 69c18-2 26-9 34-27l8-19 8 4-3 18c-1 7 4 12 14 15l13 5c5 2 7 8 2 11H18c-8 0-11-5-4-7z' fill='none' stroke='%23df82b2' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M53 42l13 6M26 78h59' fill='none' stroke='%23df82b2' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
-}
-
-.eyebrow {
-  margin: 0 0 17px;
-  color: var(--leaf);
-  font-weight: 700;
-  text-align: center;
-}
-
-h1,
-h2 {
-  font-family: "Mali", sans-serif;
-  font-weight: 800;
-}
-
-h1 {
-  font-size: clamp(48px, 7vw, 82px);
-  line-height: .99;
-  letter-spacing: -.045em;
-  margin: 0;
-  text-align: center;
-}
-
-h1 em {
-  color: var(--deep-pink);
-  font-weight: 900;
-}
-
-.intro-copy {
-  color: var(--muted);
-  font-size: 13px;
-  margin: 22px 0 0;
-  line-height: 1.7;
-  text-align: center;
-  color: var(--leaf); 
-}
-
-/* INVENTORY TOOLBAR */
-
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 2px dashed var(--leaf);
-  padding: 20px 0 17px;
-}
-
-.inventory-count {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.inventory-count strong {
-  font-family: "Nunito", sans-serif;
-  font-size: 27px;
-  font-weight: 900;
-  color: var(--deep-pink);
-}
-
-.search-wrap {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  width: min(270px, 48%);
-  border: 1.5px solid var(--line);
-  background: white;
-  padding: 11px 14px;
-  color: var(--muted);
-  border-radius: 30px;
-}
-
-.search-wrap input {
-  width: 100%;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  font-size: 12px;
-  color: var(--ink);
-}
-
-/* CATEGORY NAVIGATION */
-
-.category-nav {
-  display: flex;
-  gap: 9px;
-  overflow-x: auto;
-  padding: 8px 0 25px;
-  scrollbar-width: none;
-}
-
-.category-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.category-chip {
-  flex: none;
-  border: 1.5px solid var(--leaf);
-  background: #fafff5;
-  padding: 9px 15px;
-  border-radius: 30px;
-  color: var(--ink);
-  font-size: 10px;
-  font-weight: 700;
-  transition: .2s ease;
-}
-
-.category-chip:hover {
-  background: var(--lime);
-  border-color: var(--lime);
-}
-
-.category-chip.active {
-  background: var(--sage);
-  border-color: var(--leaf);
-  color: var(--ink);
-}
-
-/* WARDROBE GRID */
-
-.closet-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 30px 17px;
-}
-
-.item-card {
-  min-width: 0;
-  transition: transform .25s ease;
-}
-
-.item-card:hover {
-  transform: translateY(-4px);
-}
-
-.item-photo {
-  position: relative;
-  aspect-ratio: .82;
-  overflow: hidden;
-  background: #e8f0df;
-  border: 2px solid #fffefa;
-  border-radius: 12px;
-  box-shadow: 3px 4px 0 #cbdcbd;
-}
-
-.item-photo img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform .35s ease;
-}
-
-.item-card:hover .item-photo img {
-  transform: scale(1.035);
-}
-
-.item-meta {
-  padding: 12px 3px 0;
-}
-
-.item-brand {
-  color: var(--deep-pink);
-  font-size: 9px;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-  margin: 0 0 6px;
-  font-weight: 700;
-}
-
-.item-name {
-  margin: 0;
-  font-family: "Nunito", sans-serif;
-  font-size: 17px;
-  font-weight: 800;
-}
-
-.item-detail {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 10px;
-}
-
-/* DELETE BUTTON */
-
-.delete-button {
-  position: absolute;
-  top: 9px;
-  right: 9px;
-  border: 0;
-  width: 29px;
-  height: 29px;
-  border-radius: 50%;
-  background: #fff9fc;
-  color: var(--deep-pink);
-  font-size: 17px;
-  box-shadow: 0 2px 7px #00000012;
-}
-
-/* EMPTY WARDROBE */
-
-.empty-state {
-  text-align: center;
-  max-width: 390px;
-  margin: 60px auto;
-  display: none;
-}
-
-.empty-mark {
-  font-family: "Nunito", sans-serif;
-  color: var(--deep-pink);
-  font-size: 42px;
-  margin-bottom: 15px;
-}
-
-.empty-state h2 {
-  font-size: 29px;
-  margin: 0 0 10px;
-}
-
-.empty-state p {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
-  margin: 0 auto 22px;
-}
-
-/* ADD ITEM WINDOW */
-
-.item-dialog {
-  width: min(600px, calc(100% - 28px));
-  max-height: calc(100dvh - 32px);
-  padding: 10px;
-  overflow: hidden;
-  border: 1px solid #e9a9c9;
-  border-radius: 25px;
-  background-color: #fff9fc;
-  background-image:
-    radial-gradient(circle at 50% 0, transparent 7px, #e9a9c9 7.5px, #e9a9c9 9px, transparent 9.5px),
-    radial-gradient(circle at 50% 100%, transparent 7px, #e9a9c9 7.5px, #e9a9c9 9px, transparent 9.5px),
-    radial-gradient(circle at 0 50%, transparent 7px, #e9a9c9 7.5px, #e9a9c9 9px, transparent 9.5px),
-    radial-gradient(circle at 100% 50%, transparent 7px, #e9a9c9 7.5px, #e9a9c9 9px, transparent 9.5px);
-  background-size: 18px 18px;
-  color: var(--ink);
-  box-shadow: 0 15px 60px rgba(70, 100, 67, .22);
-}
-
-.item-dialog::backdrop {
-  background: #493454aa;
-  backdrop-filter: blur(4px);
-}
-
-.item-form {
-  padding: 22px 18px;
-  max-height: calc(100dvh - 56px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  border-radius: 18px;
-  background: var(--white);
-  scrollbar-width: thin;
-  scrollbar-color: var(--pink) transparent;
-}
-
-.item-form::-webkit-scrollbar {
-  width: 8px;
-}
-
-.item-form::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 18px;
-}
-
-.item-form::-webkit-scrollbar-thumb {
-  background: var(--pink);
-  border-radius: 18px;
-}
-
-
-.dialog-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 22px;
-}
-
-.dialog-heading h2 {
-  font-size: 34px;
-  margin: 0;
-}
-
-.close-button {
-  border: 0;
-  background: none;
-  font-size: 27px;
-  color: var(--deep-pink);
-}
-
-/* PHOTO UPLOAD */
-
-.photo-drop {
-  min-height: 145px;
-  border: 2px dashed var(--pink);
-  background: #fff2f8;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  cursor: pointer;
-  text-align: center;
-  overflow: hidden;
-  position: relative;
-  border-radius: 14px;
-}
-
-.photo-drop strong {
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.photo-drop small {
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.upload-icon {
-  font-size: 25px;
-  color: var(--deep-pink);
-}
-
-#photoInput {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-}
-
-#photoPreview {
-  width: 100%;
-  max-height: 260px;
-  object-fit: contain;
-  background: #f4e7f2;
-}
-
-/* FORM FIELDS */
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px 13px;
-  margin-top: 20px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  font-size: 10px;
-  color: var(--ink);
-  font-weight: 600;
-  letter-spacing: .04em;
-}
-
-.field.full {
-  grid-column: 1/-1;
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  border: 1.5px solid var(--line);
-  background: white;
-  padding: 12px;
-  color: var(--ink);
-  outline: none;
-  font-size: 12px;
-  border-radius: 10px;
-}
-
-.field textarea {
-  resize: vertical;
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-  border-color: var(--pink);
-  box-shadow: 0 0 0 3px #fce4f1;
-}
-
-.storage-note {
-  color: var(--muted);
-  font-size: 10px;
-  line-height: 1.5;
-  margin: 17px 0;
-}
-
-.save-button {
-  width: 100%;
-  border: 0;
-  background: var(--pink);
-  color: white;
-  padding: 15px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  border-radius: 30px;
-  transition: .2s ease;
-}
-
-/* DECORATIVE DETAILS */
-
-::selection {
-  background: var(--lavender);
-  color: var(--ink);
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible {
-  outline: 2px solid var(--deep-pink);
-  outline-offset: 3px;
-}
-
-/* TABLET */
-
-@media (max-width: 850px) {
-  .closet-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 25px 13px;
-  }
-
-  .edition {
-    display: none;
-  }
-}
-
-/* MOBILE */
-
-@media (max-width: 580px) {
-  .topbar {
-    min-height: 64px;
-    padding: 0 5%;
-  }
-
-  .page-shell {
-    padding: 0 5% 60px;
-  }
-
-  .topbar-right {
-    gap: 0;
-  }
-
-  .add-button {
-    padding: 11px 12px;
-  }
-
-  .intro {
-    padding: 57px 0 40px;
-  }
-
-  .intro::after {
-    right: 5%;
-    top: 35px;
-    font-size: 42px;
-  }
-
-  .intro-copy {
-    max-width: 260px;
-    line-height: 1.6;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .toolbar {
-    align-items: flex-start;
-    gap: 15px;
-    flex-direction: column;
-  }
-
-  .search-wrap {
-    width: 100%;
-  }
-
-  .closet-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px 12px;
-  }
-
-  .item-name {
-    font-size: 16px;
-  }
-
-  .item-form {
-    padding: 22px 18px;
-  }
-
-  .dialog-heading h2 {
-    font-size: 29px;
-  }
-}
-
-
-/* PURPLE INK + EXTRA FASHION-DIARY DOODLES */
-:root {
-  --ink: #594276;
-  --muted: #88779e;
-}
-
-.eyebrow,
-.intro-copy {
-  color: var(--ink);
-}
-
-h1,
-h2,
-h3,
-.wordmark,
-.inventory-count strong,
-.item-name,
-.field,
-.storage-note {
-  color: var(--ink);
-}
-
-.inventory-count strong,
-.item-brand,
-.item-detail,
-.search-wrap,
-.edition {
-  color: var(--muted);
-}
-
-.intro h1 {
-  position: relative;
-}
-
-.intro h1::before,
-.intro h1::after {
-  position: absolute;
-  font-family: "Mali", sans-serif;
-  font-weight: 700;
-  line-height: 1;
-  pointer-events: none;
-}
-
-.intro h1::before {
-  content: "✧";
-  color: var(--deep-pink);
-  font-size: .42em;
-  left: 13%;
-  top: 3%;
-  transform: rotate(-18deg);
-}
-
-.intro h1::after {
-  content: "♡";
-  color: var(--leaf);
-  font-size: .38em;
-  right: 13%;
-  bottom: 0;
-  transform: rotate(14deg);
-}
-
-.intro-copy::after {
-  content: "♡   ✧   ♡";
-  display: block;
-  margin-top: 13px;
-  color: var(--leaf);
-  font-size: 19px;
-  letter-spacing: .3em;
-}
-
-.toolbar {
-  position: relative;
-}
-
-.toolbar::after {
-  content: "✧  ♡  ✧";
-  position: absolute;
-  left: 50%;
-  bottom: 13px;
-  transform: translateX(-50%);
-  color: var(--deep-pink);
-  font-size: 17px;
-  letter-spacing: .28em;
-  pointer-events: none;
-}
-
-.item-meta {
-  position: relative;
-}
-
-.item-meta::after {
-  content: "✧";
-  position: absolute;
-  right: 4px;
-  top: 13px;
-  color: var(--leaf);
-  font-size: 14px;
-  opacity: .85;
-  pointer-events: none;
-}
-
-.empty-state {
-  position: relative;
-}
-
-.empty-state::before,
-.empty-state::after {
-  position: absolute;
-  color: var(--deep-pink);
-  font-size: 35px;
-  pointer-events: none;
-}
-
-.empty-state::before {
-  content: "♡";
-  left: -38px;
-  top: 4px;
-  transform: rotate(-16deg);
-}
-
-.empty-state::after {
-  content: "✧";
-  right: -38px;
-  top: 22px;
-  color: var(--leaf);
-  transform: rotate(12deg);
-}
-
-@media (max-width: 580px) {
-  .intro h1::before {
-    left: 2%;
-  }
-
-  .intro h1::after {
-    right: 2%;
-  }
-
-  .toolbar::after {
-    display: none;
-  }
-
-  .empty-state::before {
-    left: 0;
-  }
-
-  .empty-state::after {
-    right: 0;
-  }
-}
-
-
-/* PURPLE TITLES + BUTTONS, WITH IMAGE-BASED LACE TRIM */
-:root {
-  --ink: #684b88;
-  --muted: #927eaa;
-  --button-purple: #a88bc9;
-  --button-purple-dark: #8e70b2;
-}
-
-h1,
-h1 em,
-h2,
-h3,
-.dialog-heading h2,
-.wordmark,
-.eyebrow,
-.intro-copy,
-.inventory-count strong,
-.item-name,
-.item-brand,
-.field,
-.storage-note {
-  color: var(--ink) !important;
-}
-
-.add-button,
-.save-button,
-.category-chip,
-.category-chip.active,
-.category-chip:hover {
-  background-color: var(--button-purple) !important;
-  border-color: var(--button-purple) !important;
-  color: #fff !important;
-}
-
-.add-button:hover,
-.save-button:hover {
-  background-color: var(--button-purple-dark) !important;
-  border-color: var(--button-purple-dark) !important;
-}
-
-.delete-button,
-.close-button {
-  color: var(--button-purple-dark) !important;
-}
-
-.category-chip {
-  box-shadow: 2px 3px 0 #ded2ec;
-}
-
-.item-dialog {
-  border: 0;
-  padding: 22px 12px;
-  background-color: #fffefa;
-  background-image:
-    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
-    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
-    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png"),
-    url("https://www.pngkit.com/png/detail/103-1033853_vintage-eyelet-lace-trim-white-ruffled-edging-pulled.png");
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  background-size: 150px 22px, 150px 22px, 22px 150px, 22px 150px;
-  background-position: top center, bottom center, center left, center right;
-  box-shadow: 0 15px 60px rgba(70, 55, 90, .22);
-}
-
-.item-form {
-  background: #fffefa;
-  border-radius: 15px;
-}
-
-@media (max-width: 580px) {
-  .item-dialog {
-    padding: 19px 9px;
-    background-size: 120px 19px, 120px 19px;
-  }
-}
-
-
-/* WISH LIST */
-.archive-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 0 25px;
-}
-.archive-tab {
-  border: 1.5px solid var(--button-purple);
-  background: #fffefa;
-  color: var(--button-purple-dark);
-  border-radius: 30px;
-  padding: 10px 22px;
-  font: 700 12px "Mali", sans-serif;
-  cursor: pointer;
-  transition: .2s ease;
-}
-.archive-tab.active,
-.archive-tab:hover {
-  background: var(--button-purple);
-  color: #fff;
-  box-shadow: 2px 3px 0 #ded2ec;
-}
-.wishlist-section {
-  padding: 8px 0 35px;
-}
-.wishlist-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  border-bottom: 2px dashed var(--leaf);
-  padding: 12px 0 18px;
-}
-.wishlist-heading .eyebrow {
-  text-align: left;
-  margin-bottom: 7px;
-}
-.wishlist-heading h2 {
-  color: var(--ink);
-  font-size: clamp(27px, 4vw, 38px);
-  margin: 0;
-}
-.wishlist-heading h2 span {
-  color: var(--deep-pink);
-}
-.wishlist-intro {
-  color: var(--muted);
-  font-size: 12px;
-  margin: 15px 0 24px;
-}
-.wishlist-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 17px;
-}
-.wish-card {
-  display: flex;
-  flex-direction: column;
-  min-height: 205px;
-  padding: 18px;
-  background: #fffefa;
-  border: 1.5px solid #e4d9ef;
-  border-radius: 18px;
-  box-shadow: 3px 4px 0 #e7dff0;
-}
-.wish-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: var(--deep-pink);
-  font-size: 9px;
-  letter-spacing: .12em;
-  font-weight: 700;
-}
-.wish-delete {
-  border: 0;
-  background: transparent;
-  color: var(--button-purple-dark);
-  font-size: 21px;
-  cursor: pointer;
-}
-.wish-card h3 {
-  color: var(--ink);
-  font-size: 19px;
-  line-height: 1.25;
-  margin: 15px 0 5px;
-}
-.wish-brand {
-  color: var(--muted);
-  font-size: 10px;
-  margin: 0;
-}
-.wish-price {
-  color: var(--button-purple-dark);
-  font-size: 13px;
-  font-weight: 700;
-  margin: 13px 0 0;
-}
-.wish-notes {
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.55;
-  margin: 10px 0;
-}
-.wish-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 17px;
-}
-.wish-actions a,
-.wish-actions button {
-  color: var(--button-purple-dark);
-  font: 700 10px "Mali", sans-serif;
-  text-decoration: none;
-}
-.wish-actions button {
-  border: 1px solid #d9cce8;
-  background: #f6f0fb;
-  border-radius: 20px;
-  padding: 7px 10px;
-  cursor: pointer;
-}
-.wishlist-empty {
-  max-width: 390px;
-  margin: 55px auto;
-  text-align: center;
-}
-.wishlist-empty[hidden],
-.wishlist-section[hidden],
-[hidden] {
-  display: none !important;
-}
-.wishlist-empty h2 {
-  color: var(--ink);
-  margin: 0 0 9px;
-}
-.wishlist-empty p {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
-  margin: 0 auto 20px;
-}
-.wish-dialog .field {
-  color: var(--ink);
-}
-@media (max-width: 850px) {
-  .wishlist-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 580px) {
-  .archive-tabs { padding-bottom: 20px; }
-  .archive-tab { padding: 9px 17px; }
-  .wishlist-heading { align-items: flex-start; flex-direction: column; }
-  .wishlist-grid { grid-template-columns: 1fr; }
-}
-
-/* BLUSH PINK LACE FRAME — inspired by delicate floral wedding lace */
-.item-dialog {
-  width: min(600px, calc(100% - 28px));
-  max-height: calc(100dvh - 32px);
-  padding: 20px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 24px;
-  background-color: #f9d4e4;
-  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23d879a8%22%20stroke-width%3D%221.15%22%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M0%200L48%2048M48%200L0%2048M24%200L0%2024L24%2048L48%2024Z%22%2F%3E%3Cpath%20d%3D%22M0%2012L12%200M36%2048L48%2036M0%2036L12%2048M36%200L48%2012%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%228.2%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%223.2%22%2F%3E%3Cpath%20d%3D%22M24%2013c3.5-5%208-1%205%203%205-3%208%202%203%205%205%203%201%208-3%205%203%205-2%208-5%203-3%205-8%201-5-3-5%203-8-2-3-5-5-3-1-8%203-5-3-5%202-8%205-3Z%22%2F%3E%3Cpath%20d%3D%22M12%2012q3-6%206%200q-3%206-6%200ZM36%2012q3-6%206%200q-3%206-6%200ZM12%2036q3-6%206%200q-3%206-6%200ZM36%2036q3-6%206%200q-3%206-6%200Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23fbe3ee%22%20stroke%3D%22%23d879a8%22%20stroke-width%3D%22.8%22%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2212%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2236%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2236%22%20r%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
-  background-repeat: repeat;
-  background-size: 48px 48px;
-  box-shadow: 0 15px 60px rgba(70, 55, 90, .24);
-}
-
-.item-form {
-  max-height: calc(100dvh - 72px);
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  border-radius: 12px;
-  background: #fffefa;
-  scrollbar-width: thin;
-  scrollbar-color: #e89abd transparent;
-}
-
-.item-form::-webkit-scrollbar-thumb {
-  background: #e89abd;
-  border-radius: 18px;
-}
-
-@media (max-width: 580px) {
-  .item-dialog {
-    padding: 16px;
-    max-height: calc(100dvh - 24px);
-    background-size: 42px 42px;
-  }
-
-  .item-form {
-    max-height: calc(100dvh - 56px);
-  }
-}
-
-
-/* EDIT WARDROBE PIECES */
-.edit-button {
-  position: absolute; top: 9px; left: 9px; z-index: 1;
-  display: grid; place-items: center; width: 29px; height: 29px;
-  border: 0; border-radius: 50%; background: #fff9fc;
-  color: var(--button-purple-dark); font-size: 16px;
-  box-shadow: 0 2px 7px #00000012; cursor: pointer;
-}
-.edit-button:hover { background: #f4eafa; transform: translateY(-1px); }
-
-
-/* CLEAR, VISIBLE EDIT ACTION */
-.item-meta .edit-button {
-  position: static;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  height: auto;
-  margin-top: 10px;
-  padding: 7px 13px;
-  border: 1px solid #d9cce8;
-  border-radius: 20px;
-  background: #f6f0fb;
-  color: #765b96;
-  font: 700 11px "Mali", sans-serif;
-  box-shadow: none;
-  cursor: pointer;
-}
-.item-meta .edit-button:hover {
-  background: #eadef3;
-  transform: translateY(-1px);
-}
-
-
-/* MY MEASUREMENTS */
-.measurements-section {
-  padding: 10px 0 45px;
-}
-.measurements-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 20px;
-  border-bottom: 2px dashed var(--leaf);
-  padding: 10px 0 20px;
-}
-.measurements-heading .eyebrow {
-  text-align: left;
-  margin-bottom: 7px;
-}
-.measurements-heading h2 {
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(28px, 4vw, 39px);
-}
-.measurements-heading h2 span {
-  color: var(--deep-pink);
-}
-.measurements-intro {
-  max-width: 310px;
-  margin: 0 0 4px;
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.7;
-}
-.measurements-form {
-  display: grid;
-  gap: 18px;
-  margin-top: 22px;
-}
-.measurement-group {
-  padding: 22px;
-  background: #fffefa;
-  border: 1.5px solid #e4d9ef;
-  border-radius: 18px;
-  box-shadow: 3px 4px 0 #e7dff0;
-}
-.measurement-group h3 {
-  margin: 0 0 5px;
-  color: var(--ink);
-  font-size: 18px;
-}
-.measurement-group > p {
-  margin: 0 0 18px;
-  color: var(--muted);
-  font-size: 11px;
-}
-.measurement-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 15px;
-}
-.measurement-notes {
-  padding: 4px 2px;
-}
-.measurements-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-}
-.measurements-footer > span {
-  color: var(--muted);
-  font-size: 10px;
-}
-.measurements-footer .save-button {
-  width: auto;
-  min-width: 230px;
-  padding: 13px 22px;
-}
-.measurements-section[hidden] { display: none !important; }
-@media (max-width: 700px) {
-  .measurements-heading { align-items: flex-start; flex-direction: column; }
-  .measurement-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 480px) {
-  .measurement-group { padding: 17px; }
-  .measurement-grid { grid-template-columns: 1fr; }
-  .measurements-footer { align-items: stretch; flex-direction: column; }
-  .measurements-footer .save-button { width: 100%; }
-}
-
-
-/* OUTFIT DIARY */
-.outfits-section { padding: 8px 0 40px; }
-.outfits-heading {
-  display:flex; align-items:center; justify-content:space-between; gap:18px;
-  border-bottom:2px dashed var(--leaf); padding:12px 0 18px;
-}
-.outfits-heading .eyebrow { text-align:left; margin-bottom:7px; }
-.outfits-heading h2 { color:var(--ink); font-size:clamp(27px,4vw,38px); margin:0; }
-.outfits-heading h2 span { color:var(--deep-pink); }
-.outfits-intro { color:var(--muted); font-size:12px; line-height:1.6; margin:15px 0 24px; }
-.outfits-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
-.outfit-card {
-  min-width:0; overflow:hidden; background:#fffefa; border:1.5px solid #e4d9ef;
-  border-radius:18px; box-shadow:3px 4px 0 #e7dff0;
-}
-.outfit-main-photo { display:block; width:100%; aspect-ratio:4/5; object-fit:cover; background:#f4eafa; }
-.outfit-card-body { padding:16px 18px 18px; }
-.outfit-wearing-tags { color:var(--button-purple-dark); font-size:10px; line-height:1.6; margin:12px 0 0; }
-.outfit-photo-drop img { display:block; max-width:100%; max-height:330px; object-fit:contain; margin:12px auto 0; border-radius:12px; }
-.outfit-dialog #outfitPhotoInput { display:block; }
-.outfit-card-top { display:flex; justify-content:space-between; gap:10px; color:var(--deep-pink); font-size:9px; font-weight:700; letter-spacing:.08em; }
-.outfit-card h3 { color:var(--ink); font-size:20px; margin:12px 0 3px; }
-.outfit-occasion { color:var(--muted); font-size:10px; margin:0 0 12px; }
-.outfit-piece-strip { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:14px; }
-.outfit-piece { min-width:0; }
-.outfit-piece img { width:100%; aspect-ratio:.82; object-fit:cover; display:block; border-radius:10px; background:#f4eafa; }
-.outfit-piece span { display:block; color:var(--muted); font-size:9px; line-height:1.35; margin-top:5px; overflow-wrap:anywhere; }
-.outfit-notes { color:var(--muted); font-size:11px; line-height:1.55; margin:13px 0 0; }
-.outfit-actions { display:flex; justify-content:flex-end; gap:9px; margin-top:16px; padding-top:12px; border-top:1px dashed #e4d9ef; }
-.outfit-actions button {
-  border:1px solid #d9cce8; background:#f6f0fb; color:var(--button-purple-dark);
-  border-radius:20px; padding:7px 12px; font:700 10px "Mali",sans-serif; cursor:pointer;
-}
-.outfits-empty { max-width:390px; margin:55px auto; text-align:center; }
-.outfits-empty h2 { color:var(--ink); margin:0 0 9px; }
-.outfits-empty p,.outfit-no-items { color:var(--muted); font-size:12px; line-height:1.7; }
-.outfits-empty[hidden],.outfits-section[hidden] { display:none !important; }
-.outfit-picker { margin-top:22px; }
-.outfit-picker-heading { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
-.outfit-picker-heading h3 { color:var(--ink); font-size:15px; margin:0; }
-.outfit-picker-heading span { color:var(--muted); font-size:10px; }
-.outfit-item-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
-.outfit-choice {
-  min-width:0; display:flex; align-items:center; gap:9px; padding:8px;
-  border:1px solid #e4d9ef; border-radius:12px; background:#fffafd; cursor:pointer;
-}
-.outfit-choice input { accent-color:var(--button-purple); flex:none; }
-.outfit-choice img { width:48px; height:56px; object-fit:cover; border-radius:7px; background:#f4eafa; }
-.outfit-choice span { min-width:0; }
-.outfit-choice strong,.outfit-choice small { display:block; overflow-wrap:anywhere; }
-.outfit-choice strong { color:var(--ink); font-size:10px; }
-.outfit-choice small { color:var(--muted); font-size:9px; margin-top:3px; }
-.outfit-no-items { grid-column:1/-1; padding:15px; background:#fff5fa; border-radius:12px; }
-.outfit-dialog { width:min(680px,calc(100% - 28px)); }
-@media(max-width:650px) {
-  .outfits-heading { align-items:flex-start; flex-direction:column; }
-  .outfits-grid { grid-template-columns:1fr; }
-  .outfit-item-choices { grid-template-columns:1fr; }
-}
-
-
-/* OUTFIT DIARY VISIBILITY + RELIABLE DIALOG SCROLLING */
-.outfits-section:not([hidden]) {
-  display: block !important;
-}
-.outfits-heading .add-button,
-.outfits-empty .add-button {
-  display: inline-flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 1;
-}
-.outfit-dialog {
-  box-sizing: border-box;
-  width: min(680px, calc(100% - 28px));
-  height: calc(100dvh - 32px);
-  max-height: calc(100dvh - 32px);
-  overflow: hidden;
-  padding: 16px;
-}
-.outfit-dialog .item-form {
-  box-sizing: border-box;
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-@media (max-width: 580px) {
-  .outfit-dialog {
-    height: calc(100dvh - 20px);
-    max-height: calc(100dvh - 20px);
-    padding: 12px;
-  }
-}
-
-
-/* SEARCH WITHIN THE OUTFIT PIECE PICKER */
-.outfit-search-wrap {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0 0 12px;
-  padding: 0 13px;
-  min-height: 42px;
-  border: 1px solid #e4d9ef;
-  border-radius: 14px;
-  background: #fffafd;
-  color: var(--button-purple-dark);
-}
-.outfit-search-wrap > span {
-  font-size: 20px;
-  line-height: 1;
-}
-.outfit-search-wrap input {
-  width: 100%;
-  min-width: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--ink);
-  font: 500 12px "Mali", sans-serif;
-}
-.outfit-search-wrap input::placeholder {
-  color: #a99bb4;
-}
-.outfit-choice[hidden] {
-  display: none !important;
-}
-.outfit-no-results {
-  margin: 8px 0 0;
-  padding: 12px;
-  border-radius: 12px;
-  background: #fff5fa;
-  color: var(--muted);
-  font-size: 11px;
-  text-align: center;
-}
-.outfit-no-results[hidden] {
-  display: none !important;
-}
-
-.worn-section{padding:8px 0 40px}.worn-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}.worn-heading .eyebrow{text-align:left;margin-bottom:7px}.worn-heading h2{color:var(--ink);font-size:clamp(27px,4vw,38px);margin:0}.worn-heading h2 span{color:var(--deep-pink)}.worn-intro{color:var(--muted);font-size:12px;line-height:1.7;margin:15px 0 24px}.worn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.worn-card{min-width:0;overflow:hidden;border:1px solid #eaddea;border-radius:18px;background:#fffdfb}.worn-main-photo{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f6edf4}.worn-card-body{padding:14px}.worn-card-top{display:flex;justify-content:space-between;gap:8px;color:var(--deep-pink);font-size:9px;font-weight:700}.worn-card h3{margin:10px 0 3px;color:var(--ink);font-size:18px}.worn-card p{color:var(--muted);font-size:10px;line-height:1.6}.worn-tags{color:var(--button-purple-dark)!important}.worn-empty{max-width:390px;margin:55px auto;text-align:center}.worn-empty h2{color:var(--ink)}.worn-empty p{color:var(--muted);font-size:12px}.worn-empty[hidden],.worn-section[hidden]{display:none!important}.worn-dialog{width:min(680px,calc(100% - 28px))}.worn-dialog .item-form{max-height:min(86dvh,900px);overflow-y:auto}.worn-photo-drop img{display:block;max-width:100%;max-height:330px;object-fit:contain;margin:12px auto 0;border-radius:12px}@media(max-width:850px){.worn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:580px){.worn-heading{align-items:flex-start;flex-direction:column}.worn-grid{grid-template-columns:1fr}}
-
-
-/* Backup and restore controls */
-.backup-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  flex-wrap: wrap;
-  margin: 18px 0 28px;
-  padding: 16px 18px;
-  border: 1px dashed rgba(142,112,178,.45);
-  border-radius: 18px;
-  background: rgba(255,255,255,.72);
-}
-.backup-strip > div:first-child {
-  display: grid;
-  gap: 4px;
-}
-.backup-strip > div:first-child strong {
-  color: var(--button-purple-dark, #8e70b2);
-  font-weight: 700;
-}
-.backup-strip > div:first-child span,
-#backupStatus {
-  color: #746b78;
-  font-size: .82rem;
-}
-.backup-actions {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  flex-wrap: wrap;
-}
-.backup-restore {
-  border: 1px solid var(--button-purple, #a88bc9);
-  border-radius: 999px;
-  padding: 10px 16px;
-  background: #fff;
-  color: var(--button-purple-dark, #8e70b2);
-  font: inherit;
-  cursor: pointer;
-}
-#backupStatus {
-  flex-basis: 100%;
-  margin: 0;
-}
-@media (max-width: 600px) {
-  .backup-strip { align-items: flex-start; }
-  .backup-actions { width: 100%; }
-  .backup-actions button { flex: 1 1 auto; }
-}
