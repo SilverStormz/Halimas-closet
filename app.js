@@ -91,13 +91,13 @@ function render() {
     <article class="item-card">
       <div class="item-photo">
         <img src="${item.photo}" alt="${escapeHTML(item.name)}">
-        <button class="edit-button" data-edit="${item.id}" aria-label="Edit ${escapeHTML(item.name)}">✎</button>
-        <button class="delete-button" data-delete="${item.id}" aria-label="Delete ${escapeHTML(item.name)}">×</button>
+        <button type="button" class="delete-button" data-delete="${escapeHTML(item.id)}" aria-label="Delete ${escapeHTML(item.name)}">×</button>
       </div>
       <div class="item-meta">
         <p class="item-brand">${escapeHTML(item.brand || item.category)}</p>
         <h3 class="item-name">${escapeHTML(item.name)}</h3>
         <p class="item-detail">${[item.color,item.size].filter(Boolean).map(escapeHTML).join(" · ")}</p>
+        <button type="button" class="edit-button" data-edit="${escapeHTML(item.id)}">Edit piece ✎</button>
       </div>
     </article>`).join("");
   emptyState.style.display = items.length === 0 ? "block" : "none";
@@ -246,13 +246,13 @@ form.addEventListener("submit", event => {
 grid.addEventListener("click", event => {
   const editButton = event.target.closest("[data-edit]");
   if (editButton) {
-    const itemToEdit = items.find(entry => entry.id === editButton.dataset.edit);
+    const itemToEdit = items.find(entry => String(entry.id) === String(editButton.dataset.edit));
     if (itemToEdit) openEditDialog(itemToEdit);
     return;
   }
   const button = event.target.closest("[data-delete]");
   if (!button) return;
-  const item = items.find(entry => entry.id === button.dataset.delete);
+  const item = items.find(entry => String(entry.id) === String(button.dataset.delete));
   if (!item || !confirm("Remove \"" + item.name + "\" from your closet?")) return;
   items = items.filter(entry => entry.id !== item.id);
   saveItems();
