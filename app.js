@@ -424,7 +424,7 @@ wishlistGrid.addEventListener("click", event => {
       category: wish.category || "Other",
       color: "",
       size: "",
-      notes: [wish.notes, wish.price ? `Wishlist price: ${wish.price}` : "", wish.link ? `Product link: ${wish.link}` : ""].filter(Boolean).join("\\n")
+      notes: [wish.notes, wish.price ? `Wishlist price: ${wish.price}` : "", wish.link ? `Product link: ${wish.link}` : ""].filter(Boolean).join("\n")
     };
     const previousItems = [...items];
     const previousWishes = [...wishes];
