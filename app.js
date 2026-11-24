@@ -446,3 +446,73 @@ render();
 
 
 renderWishes();
+
+
+// Full local backup: includes closet photos and every current section's saved data.
+const BACKUP_KEYS = [
+  STORAGE_KEY,
+  WISH_STORAGE_KEY,
+  MEASUREMENTS_STORAGE_KEY,
+  OUTFITS_STORAGE_KEY,
+  WORN_KEY
+];
+const backupStatus = document.getElementById("backupStatus");
+document.getElementById("exportBackup").addEventListener("click", () => {
+  try {
+    const savedData = {};
+    BACKUP_KEYS.forEach(key => {
+      savedData[key] = localStorage.getItem(key);
+    });
+    const backup = {
+      app: "Halima's Closet",
+      formatVersion: 1,
+      createdAt: new Date().toISOString(),
+      storage: savedData
+    };
+    const blob = new Blob([JSON.stringify(backup)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "halimas-closet-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    backupStatus.textContent = "Your backup download has started. Keep that file somewhere safe ♡";
+  } catch (error) {
+    backupStatus.textContent = "I couldn't create the backup. Please try again.";
+    console.error(error);
+  }
+});
+document.getElementById("importBackupButton").addEventListener("click", () => {
+  document.getElementById("importBackupFile").click();
+});
+document.getElementById("importBackupFile").addEventListener("change", async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const backup = JSON.parse(await file.text());
+    if (backup.app !== "Halima's Closet" || backup.formatVersion !== 1 || !backup.storage || typeof backup.storage !== "object") {
+      throw new Error("This doesn't look like a Halima's Closet backup.");
+    }
+    const allowed = BACKUP_KEYS.filter(key => Object.prototype.hasOwnProperty.call(backup.storage, key));
+    if (!allowed.length) throw new Error("No closet data was found in this backup.");
+    allowed.forEach(key => {
+      const value = backup.storage[key];
+      if (value !== null) JSON.parse(value);
+    });
+    if (!confirm("Restoring this backup will replace the saved closet data in this browser. Download a fresh backup first if you want to keep the current version. Continue?")) return;
+    allowed.forEach(key => {
+      const value = backup.storage[key];
+      if (value === null) localStorage.removeItem(key);
+      else localStorage.setItem(key, value);
+    });
+    backupStatus.textContent = "Backup restored. Refreshing your closet…";
+    setTimeout(() => window.location.reload(), 500);
+  } catch (error) {
+    alert(error.message || "I couldn't read that backup file.");
+    backupStatus.textContent = "The backup wasn't restored. Your existing data is unchanged.";
+  } finally {
+    event.target.value = "";
+  }
+});
