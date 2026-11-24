@@ -1453,3 +1453,19 @@ body:not(.is-owner) #measurementsSection { display: none !important; }
 @media (max-width: 760px) {
   .auth-panel { grid-template-columns: 1fr; padding: 18px; }
 }
+
+
+/* Keep password recovery link clearly visible below the sign-in form */
+.auth-forgot-link {
+  justify-self: start;
+  display: inline-flex;
+  margin-top: 8px;
+  border: 0;
+  padding: 6px 0;
+  background: transparent;
+  color: #8e70b2;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
