@@ -1334,9 +1334,6 @@ h3,
   display: none !important;
 }
 
-.worn-section{padding:8px 0 40px}.worn-heading{display:flex;align-items:center;justify-content:space-between;gap:18px}.worn-heading .eyebrow{text-align:left;margin-bottom:7px}.worn-heading h2{color:var(--ink);font-size:clamp(27px,4vw,38px);margin:0}.worn-heading h2 span{color:var(--deep-pink)}.worn-intro{color:var(--muted);font-size:12px;line-height:1.7;margin:15px 0 24px}.worn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.worn-card{min-width:0;overflow:hidden;border:1px solid #eaddea;border-radius:18px;background:#fffdfb}.worn-main-photo{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;background:#f6edf4}.worn-card-body{padding:14px}.worn-card-top{display:flex;justify-content:space-between;gap:8px;color:var(--deep-pink);font-size:9px;font-weight:700}.worn-card h3{margin:10px 0 3px;color:var(--ink);font-size:18px}.worn-card p{color:var(--muted);font-size:10px;line-height:1.6}.worn-tags{color:var(--button-purple-dark)!important}.worn-empty{max-width:390px;margin:55px auto;text-align:center}.worn-empty h2{color:var(--ink)}.worn-empty p{color:var(--muted);font-size:12px}.worn-empty[hidden],.worn-section[hidden]{display:none!important}.worn-dialog{width:min(680px,calc(100% - 28px))}.worn-dialog .item-form{max-height:min(86dvh,900px);overflow-y:auto}.worn-photo-drop img{display:block;max-width:100%;max-height:330px;object-fit:contain;margin:12px auto 0;border-radius:12px}@media(max-width:850px){.worn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:580px){.worn-heading{align-items:flex-start;flex-direction:column}.worn-grid{grid-template-columns:1fr}}
-
-
 /* Backup and restore controls */
 .backup-strip {
   display: flex;
