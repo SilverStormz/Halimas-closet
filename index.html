@@ -32,11 +32,11 @@
         <div class="auth-actions">
           <button class="save-button" type="submit" id="authSubmit">Sign in</button>
           <button class="backup-restore" type="button" id="authSignUp">Create account</button>
-          <button class="backup-restore" type="button" id="authForgotPassword">Forgot password?</button>
           <button class="backup-restore" type="button" id="authSignOut" hidden>Sign out</button>
         </div>
         <p id="authStatus" role="status" aria-live="polite"></p>
       </form>
+      <button class="auth-forgot-link" type="button" id="authForgotPassword">Forgot password?</button>
       <form id="resetPasswordForm" class="auth-form" hidden>
         <label class="field">Choose a new password<input id="newPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters"></label>
         <button class="save-button" type="submit">Save new password</button>
