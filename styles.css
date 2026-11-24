@@ -1022,3 +1022,46 @@ h3,
   .wishlist-heading { align-items: flex-start; flex-direction: column; }
   .wishlist-grid { grid-template-columns: 1fr; }
 }
+
+/* BLUSH PINK LACE FRAME — inspired by delicate floral wedding lace */
+.item-dialog {
+  width: min(600px, calc(100% - 28px));
+  max-height: calc(100dvh - 32px);
+  padding: 20px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 24px;
+  background-color: #f9d4e4;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2248%22%20height%3D%2248%22%20viewBox%3D%220%200%2048%2048%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23d879a8%22%20stroke-width%3D%221.15%22%20opacity%3D%22.95%22%3E%3Cpath%20d%3D%22M0%200L48%2048M48%200L0%2048M24%200L0%2024L24%2048L48%2024Z%22%2F%3E%3Cpath%20d%3D%22M0%2012L12%200M36%2048L48%2036M0%2036L12%2048M36%200L48%2012%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%228.2%22%2F%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%223.2%22%2F%3E%3Cpath%20d%3D%22M24%2013c3.5-5%208-1%205%203%205-3%208%202%203%205%205%203%201%208-3%205%203%205-2%208-5%203-3%205-8%201-5-3-5%203-8-2-3-5-5-3-1-8%203-5-3-5%202-8%205-3Z%22%2F%3E%3Cpath%20d%3D%22M12%2012q3-6%206%200q-3%206-6%200ZM36%2012q3-6%206%200q-3%206-6%200ZM12%2036q3-6%206%200q-3%206-6%200ZM36%2036q3-6%206%200q-3%206-6%200Z%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23fbe3ee%22%20stroke%3D%22%23d879a8%22%20stroke-width%3D%22.8%22%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2224%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2212%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2236%22%20r%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%2236%22%20cy%3D%2236%22%20r%3D%221.5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat: repeat;
+  background-size: 48px 48px;
+  box-shadow: 0 15px 60px rgba(70, 55, 90, .24);
+}
+
+.item-form {
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  border-radius: 12px;
+  background: #fffefa;
+  scrollbar-width: thin;
+  scrollbar-color: #e89abd transparent;
+}
+
+.item-form::-webkit-scrollbar-thumb {
+  background: #e89abd;
+  border-radius: 18px;
+}
+
+@media (max-width: 580px) {
+  .item-dialog {
+    padding: 16px;
+    max-height: calc(100dvh - 24px);
+    background-size: 42px 42px;
+  }
+
+  .item-form {
+    max-height: calc(100dvh - 56px);
+  }
+}
