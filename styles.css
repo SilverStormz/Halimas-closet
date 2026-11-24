@@ -129,6 +129,7 @@ h1 {
   line-height: .99;
   letter-spacing: -.045em;
   margin: 0;
+  text-align: center;
 }
 
 h1 em {
