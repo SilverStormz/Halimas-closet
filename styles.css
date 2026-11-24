@@ -1607,3 +1607,195 @@ body:not(.is-owner) #measurementsSection { display: none !important; }
   .auth-dialog .auth-actions { flex-direction: column; align-items: stretch; }
   .auth-dialog .auth-actions button { width: 100%; }
 }
+
+
+/* MODERN MINI-BROWSER ENTRY WINDOWS */
+:root {
+  --window-ink: #302b38;
+  --window-muted: #817b89;
+  --window-line: #e7e3eb;
+  --window-surface: #ffffff;
+  --window-canvas: #f5f3f7;
+  --window-accent: #8e78ad;
+}
+body {
+  background: var(--window-canvas);
+  color: var(--window-ink);
+  font-family: "Inter", "Nunito", Arial, sans-serif;
+}
+.topbar {
+  background: rgba(255,255,255,.94);
+  border-bottom: 1px solid var(--window-line);
+}
+.wordmark, h1, h2, h3, .item-name, .field {
+  font-family: "Inter", "Nunito", Arial, sans-serif;
+}
+.page-shell { max-width: 1360px; }
+.intro::before, .intro::after,
+.intro h1::before, .intro h1::after,
+.intro-copy::after, .toolbar::after,
+.item-meta::after { display: none; }
+.intro { padding-top: 58px; }
+h1 { color: var(--window-ink) !important; letter-spacing: -.055em; }
+h1 em { color: var(--window-accent) !important; }
+.eyebrow, .intro-copy { color: var(--window-muted) !important; }
+.toolbar { border-top: 1px solid var(--window-line); }
+.search-wrap {
+  border: 1px solid var(--window-line);
+  border-radius: 9px;
+  background: #fff;
+}
+.category-chip, .category-chip.active, .category-chip:hover {
+  border: 1px solid var(--window-line) !important;
+  border-radius: 8px;
+  background: #fff !important;
+  color: var(--window-muted) !important;
+  box-shadow: none;
+}
+.category-chip.active {
+  border-color: #c9bdd9 !important;
+  background: #f0ebf6 !important;
+  color: var(--window-accent) !important;
+}
+.add-button, .save-button {
+  border: 1px solid var(--window-accent) !important;
+  border-radius: 9px;
+  background: var(--window-accent) !important;
+  box-shadow: none;
+  font-family: inherit;
+  letter-spacing: 0;
+}
+.add-button:hover, .save-button:hover {
+  background: #796393 !important;
+  border-color: #796393 !important;
+}
+
+/* Every saved piece becomes its own compact browser window */
+.item-card, .wish-card, .outfit-card, .measurement-group {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--window-line);
+  border-radius: 11px;
+  background: var(--window-surface);
+  box-shadow: 0 3px 12px rgba(42,32,54,.045);
+  overflow: hidden;
+}
+.item-card {
+  padding: 37px 10px 12px;
+}
+.item-card::before, .wish-card::before, .outfit-card::before, .measurement-group::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 29px;
+  border-bottom: 1px solid var(--window-line);
+  background-color: #fbfafc;
+  background-image:
+    radial-gradient(circle at 14px 14px, #ed8c91 0 3px, transparent 3.6px),
+    radial-gradient(circle at 27px 14px, #e9c477 0 3px, transparent 3.6px),
+    radial-gradient(circle at 40px 14px, #8dc7a2 0 3px, transparent 3.6px);
+  background-repeat: no-repeat;
+}
+.item-card::after, .wish-card::after, .outfit-card::after, .measurement-group::after {
+  content: "closet.local  /  entry";
+  position: absolute;
+  z-index: 3;
+  top: 6px;
+  left: 58px;
+  right: 10px;
+  height: 17px;
+  padding: 1px 9px;
+  overflow: hidden;
+  border: 1px solid #ebe8ef;
+  border-radius: 5px;
+  background: #fff;
+  color: #a19ba8;
+  font: 9px/14px "Inter", Arial, sans-serif;
+  white-space: nowrap;
+}
+.item-photo {
+  aspect-ratio: .88;
+  border: 0;
+  border-radius: 6px;
+  background: #f0edf3;
+  box-shadow: none;
+}
+.item-meta { padding: 11px 3px 0; }
+.item-brand { color: var(--window-accent) !important; letter-spacing: .08em; }
+.item-name { color: var(--window-ink) !important; font-size: 15px; }
+.item-detail { color: var(--window-muted) !important; }
+.item-meta .edit-button {
+  border: 1px solid var(--window-line);
+  border-radius: 6px;
+  background: #faf9fb;
+  color: var(--window-accent);
+  font-family: inherit;
+}
+.delete-button, .edit-button {
+  box-shadow: none;
+}
+
+/* Wishlist, outfit diary and measurement entries use matching window chrome */
+.wish-card {
+  min-height: 230px;
+  padding: 44px 16px 15px;
+  border-radius: 11px;
+  box-shadow: 0 3px 12px rgba(42,32,54,.045);
+}
+.wish-card h3, .outfit-card h3, .measurement-group h3 {
+  color: var(--window-ink) !important;
+  font-family: "Inter", "Nunito", Arial, sans-serif;
+}
+.wish-card-top { color: var(--window-accent); }
+.wish-brand, .wish-notes, .outfit-occasion, .outfit-notes,
+.measurement-group > p { color: var(--window-muted); }
+.wish-price { color: var(--window-accent); }
+.wish-actions button, .outfit-actions button {
+  border: 1px solid var(--window-line);
+  border-radius: 7px;
+  background: #faf9fb;
+  color: var(--window-accent);
+  font-family: inherit;
+}
+.outfit-card { padding: 37px 0 0; border-radius: 11px; }
+.outfit-card-body { padding: 15px; }
+.outfit-main-photo { max-height: 480px; }
+.measurement-group {
+  padding: 43px 20px 20px;
+  border-radius: 11px;
+  box-shadow: 0 3px 12px rgba(42,32,54,.045);
+}
+.measurements-heading, .outfits-heading, .wishlist-heading {
+  border-bottom: 1px solid var(--window-line);
+}
+.measurements-heading h2, .outfits-heading h2, .wishlist-heading h2 {
+  color: var(--window-ink) !important;
+}
+.measurements-intro, .outfits-intro, .wishlist-intro { color: var(--window-muted); }
+
+/* Clean up modal surfaces to match the new interface */
+.item-dialog {
+  border-radius: 13px;
+  padding: 12px;
+  background: #fff;
+  background-image: none;
+  box-shadow: 0 20px 70px rgba(35,26,45,.2);
+}
+.item-form {
+  border-radius: 8px;
+  background: #fff;
+}
+.dialog-heading h2 { color: var(--window-ink) !important; }
+.field input, .field select, .field textarea {
+  border-radius: 7px;
+  border-color: var(--window-line);
+}
+@media (max-width: 580px) {
+  .intro { padding-top: 42px; }
+  .item-card { padding: 35px 8px 10px; }
+  .wish-card { padding: 42px 14px 14px; }
+  .measurement-group { padding: 41px 15px 16px; }
+}
