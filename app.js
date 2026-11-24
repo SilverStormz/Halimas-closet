@@ -6,6 +6,58 @@ const form = document.getElementById("itemForm");
 const photoInput = document.getElementById("photoInput");
 const photoPreview = document.getElementById("photoPreview");
 const photoLabel = document.getElementById("photoLabel");
+const wishDialog = document.getElementById("wishDialog");
+const wishForm = document.getElementById("wishForm");
+const wishlistGrid = document.getElementById("wishlistGrid");
+const wishlistEmpty = document.getElementById("wishlistEmpty");
+const wishlistSection = document.getElementById("wishlistSection");
+const closetToolbar = document.getElementById("closetToolbar");
+const categoryNav = document.getElementById("categoryNav");
+const closetGrid = document.getElementById("closetGrid");
+const closetEmpty = document.getElementById("emptyState");
+const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
+let wishes = loadWishes();
+let activeView = "closet";
+
+function loadWishes() {
+  try { return JSON.parse(localStorage.getItem(WISH_STORAGE_KEY) || "[]"); }
+  catch { return []; }
+}
+function saveWishes() {
+  try {
+    localStorage.setItem(WISH_STORAGE_KEY, JSON.stringify(wishes));
+    return true;
+  } catch {
+    alert("Your browser storage is full. Try removing a few saved wishes.");
+    return false;
+  }
+}
+function renderWishes() {
+  wishlistGrid.innerHTML = wishes.map(wish => `
+    <article class="wish-card">
+      <div class="wish-card-top"><span>♡ A LITTLE WISH</span><button class="wish-delete" data-wish-delete="${wish.id}" aria-label="Remove ${escapeHTML(wish.name)}">×</button></div>
+      <h3>${escapeHTML(wish.name)}</h3>
+      <p class="wish-brand">${escapeHTML(wish.brand || wish.category || "On my radar")}</p>
+      ${wish.price ? `<p class="wish-price">${escapeHTML(wish.price)}</p>` : ""}
+      ${wish.notes ? `<p class="wish-notes">${escapeHTML(wish.notes)}</p>` : ""}
+      <div class="wish-actions">
+        ${wish.link ? `<a href="${escapeHTML(wish.link)}" target="_blank" rel="noopener noreferrer">View item ↗</a>` : "<span></span>"}
+        <button type="button" data-wish-got="${wish.id}">I got it! ✧</button>
+      </div>
+    </article>`).join("");
+  wishlistEmpty.hidden = wishes.length > 0;
+}
+function setView(view) {
+  activeView = view;
+  document.querySelectorAll(".archive-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
+  const showingCloset = view === "closet";
+  closetToolbar.hidden = !showingCloset;
+  categoryNav.hidden = !showingCloset;
+  closetGrid.hidden = !showingCloset;
+  closetEmpty.hidden = !showingCloset || items.length !== 0;
+  wishlistSection.hidden = showingCloset;
+  if (!showingCloset) renderWishes();
+}
 let items = loadItems();
 let activeCategory = "All";
 let searchTerm = "";
@@ -51,6 +103,56 @@ function render() {
   }
 }
 function openDialog() { dialog.showModal(); }
+function openWishDialog() { wishDialog.showModal(); }
+document.querySelectorAll(".archive-tab").forEach(tab => {
+  tab.addEventListener("click", () => setView(tab.dataset.view));
+});
+document.getElementById("openWishTop").addEventListener("click", openWishDialog);
+document.getElementById("openWishEmpty").addEventListener("click", openWishDialog);
+document.getElementById("closeWishDialog").addEventListener("click", () => wishDialog.close());
+wishForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const link = document.getElementById("wishLink").value.trim();
+  if (link) {
+    try {
+      const parsed = new URL(link);
+      if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid URL");
+    } catch {
+      alert("Please enter a valid web link, beginning with https://");
+      return;
+    }
+  }
+  const wish = {
+    id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    name: document.getElementById("wishName").value.trim(),
+    brand: document.getElementById("wishBrand").value.trim(),
+    category: document.getElementById("wishCategory").value,
+    price: document.getElementById("wishPrice").value.trim(),
+    link,
+    notes: document.getElementById("wishNotes").value.trim()
+  };
+  wishes.unshift(wish);
+  if (saveWishes()) {
+    wishForm.reset();
+    wishDialog.close();
+    setView("wishlist");
+  } else { wishes.shift(); }
+});
+wishlistGrid.addEventListener("click", event => {
+  const removeButton = event.target.closest("[data-wish-delete]");
+  const gotButton = event.target.closest("[data-wish-got]");
+  const id = removeButton?.dataset.wishDelete || gotButton?.dataset.wishGot;
+  if (!id) return;
+  const wish = wishes.find(entry => entry.id === id);
+  if (!wish) return;
+  const message = gotButton
+    ? `Move "${wish.name}" off your wish list? You can add it to your closet separately.`
+    : `Remove "${wish.name}" from your wish list?`;
+  if (!confirm(message)) return;
+  wishes = wishes.filter(entry => entry.id !== id);
+  saveWishes();
+  renderWishes();
+});
 document.getElementById("openAddTop").addEventListener("click", openDialog);
 document.getElementById("openAddEmpty").addEventListener("click", openDialog);
 document.getElementById("closeDialog").addEventListener("click", () => dialog.close());
@@ -117,3 +219,5 @@ grid.addEventListener("click", event => {
 });
 render();
 
+
+renderWishes();
