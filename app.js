@@ -16,6 +16,14 @@ const categoryNav = document.getElementById("categoryNav");
 const closetGrid = document.getElementById("closetGrid");
 const closetEmpty = document.getElementById("emptyState");
 const measurementsSection = document.getElementById("measurementsSection");
+const outfitsSection = document.getElementById("outfitsSection");
+const outfitsGrid = document.getElementById("outfitsGrid");
+const outfitsEmpty = document.getElementById("outfitsEmpty");
+const outfitDialog = document.getElementById("outfitDialog");
+const outfitForm = document.getElementById("outfitForm");
+const OUTFITS_STORAGE_KEY = "halimas-closet-outfits-v1";
+let outfits = loadOutfits();
+let editingOutfitId = null;
 const measurementsForm = document.getElementById("measurementsForm");
 const MEASUREMENTS_STORAGE_KEY = "halimas-closet-measurements-v1";
 const measurementFields = ["measureHeight","measureWeight","measureBust","measureWaist","measureHips","measureInseam","sizeTops","sizeBottoms","sizeDresses","sizeOuterwear","sizeBra","sizeShoes","sizeRings","sizeBracelet","sizeNecklace","sizeBelt","sizeHat","measureNotes"];
@@ -58,13 +66,16 @@ function setView(view) {
   document.querySelectorAll(".archive-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
   const showingCloset = view === "closet";
   const showingWishlist = view === "wishlist";
+  const showingOutfits = view === "outfits";
   closetToolbar.hidden = !showingCloset;
   categoryNav.hidden = !showingCloset;
   closetGrid.hidden = !showingCloset;
   closetEmpty.hidden = !showingCloset || items.length !== 0;
   wishlistSection.hidden = !showingWishlist;
   measurementsSection.hidden = view !== "measurements";
+  outfitsSection.hidden = !showingOutfits;
   if (showingWishlist) renderWishes();
+  if (showingOutfits) renderOutfits();
 }
 let items = loadItems();
 let activeCategory = "All";
@@ -148,6 +159,74 @@ function openEditDialog(item) {
 }
 function openWishDialog() { wishDialog.showModal(); }
 
+function loadOutfits() {
+  try { return JSON.parse(localStorage.getItem(OUTFITS_STORAGE_KEY) || "[]"); }
+  catch { return []; }
+}
+function saveOutfits() {
+  try {
+    localStorage.setItem(OUTFITS_STORAGE_KEY, JSON.stringify(outfits));
+    return true;
+  } catch {
+    alert("Your browser storage is full. Try removing an outfit or using smaller item photos.");
+    return false;
+  }
+}
+function renderOutfits() {
+  outfitsGrid.innerHTML = outfits.map(outfit => {
+    const pieces = (outfit.itemIds || []).map(id => items.find(item => String(item.id) === String(id))).filter(Boolean);
+    return `
+      <article class="outfit-card">
+        <div class="outfit-card-top"><span>♡ OUTFIT NOTE</span><span>${escapeHTML(outfit.date || outfit.occasion || "A look to remember")}</span></div>
+        <h3>${escapeHTML(outfit.name)}</h3>
+        ${outfit.occasion ? `<p class="outfit-occasion">${escapeHTML(outfit.occasion)}</p>` : ""}
+        <div class="outfit-piece-strip">
+          ${pieces.map(piece => `<div class="outfit-piece"><img src="${piece.photo}" alt="${escapeHTML(piece.name)}"><span>${escapeHTML(piece.name)}</span></div>`).join("")}
+          ${pieces.length === 0 ? '<p class="outfit-missing">Some saved pieces are no longer in your closet.</p>' : ""}
+        </div>
+        ${outfit.notes ? `<p class="outfit-notes">${escapeHTML(outfit.notes)}</p>` : ""}
+        <div class="outfit-actions">
+          <button type="button" data-outfit-edit="${escapeHTML(outfit.id)}">Edit outfit ✎</button>
+          <button type="button" data-outfit-delete="${escapeHTML(outfit.id)}">Delete</button>
+        </div>
+      </article>`;
+  }).join("");
+  outfitsEmpty.hidden = outfits.length > 0;
+}
+function renderOutfitChoices(selectedIds = []) {
+  const selected = selectedIds.map(String);
+  const choices = document.getElementById("outfitItemChoices");
+  if (!items.length) {
+    choices.innerHTML = '<p class="outfit-no-items">Your closet is empty for now. Add a few pieces to My Closet first, then come back to style an outfit.</p>';
+    document.getElementById("outfitSelectedCount").textContent = "0 selected";
+    return;
+  }
+  choices.innerHTML = items.map(item => `
+    <label class="outfit-choice">
+      <input type="checkbox" name="outfitItems" value="${escapeHTML(item.id)}" ${selected.includes(String(item.id)) ? "checked" : ""}>
+      <img src="${item.photo}" alt="">
+      <span><strong>${escapeHTML(item.name)}</strong><small>${escapeHTML(item.brand || item.category || "")}</small></span>
+    </label>`).join("");
+  updateOutfitSelectedCount();
+}
+function updateOutfitSelectedCount() {
+  const count = document.querySelectorAll('input[name="outfitItems"]:checked').length;
+  document.getElementById("outfitSelectedCount").textContent = count + (count === 1 ? " selected" : " selected");
+}
+function openOutfitDialog(outfit = null) {
+  editingOutfitId = outfit ? outfit.id : null;
+  outfitForm.reset();
+  document.getElementById("outfitName").value = outfit?.name || "";
+  document.getElementById("outfitOccasion").value = outfit?.occasion || "";
+  document.getElementById("outfitDate").value = outfit?.date || "";
+  document.getElementById("outfitNotes").value = outfit?.notes || "";
+  document.getElementById("outfitDialogTitle").textContent = outfit ? "Edit an outfit" : "Create an outfit";
+  outfitForm.querySelector(".save-button").textContent = outfit ? "Save outfit changes ♡" : "Save this outfit ♡";
+  renderOutfitChoices(outfit?.itemIds || []);
+  outfitDialog.showModal();
+}
+
+
 function loadMeasurements() {
   try { return JSON.parse(localStorage.getItem(MEASUREMENTS_STORAGE_KEY) || "{}"); }
   catch { return {}; }
@@ -172,6 +251,51 @@ measurementsForm.addEventListener("submit", event => {
   }
 });
 populateMeasurements();
+
+
+document.getElementById("openOutfitTop").addEventListener("click", () => openOutfitDialog());
+document.getElementById("openOutfitEmpty").addEventListener("click", () => openOutfitDialog());
+document.getElementById("closeOutfitDialog").addEventListener("click", () => outfitDialog.close());
+document.getElementById("outfitItemChoices").addEventListener("change", updateOutfitSelectedCount);
+outfitForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const itemIds = Array.from(document.querySelectorAll('input[name="outfitItems"]:checked')).map(input => input.value);
+  if (!itemIds.length) {
+    alert("Choose at least one piece from your closet to save this outfit.");
+    return;
+  }
+  const outfit = {
+    id: editingOutfitId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    name: document.getElementById("outfitName").value.trim(),
+    occasion: document.getElementById("outfitOccasion").value,
+    date: document.getElementById("outfitDate").value,
+    notes: document.getElementById("outfitNotes").value.trim(),
+    itemIds
+  };
+  const previous = [...outfits];
+  if (editingOutfitId) outfits = outfits.map(entry => String(entry.id) === String(editingOutfitId) ? outfit : entry);
+  else outfits.unshift(outfit);
+  if (saveOutfits()) {
+    outfitDialog.close();
+    setView("outfits");
+  } else outfits = previous;
+});
+outfitsGrid.addEventListener("click", event => {
+  const edit = event.target.closest("[data-outfit-edit]");
+  const remove = event.target.closest("[data-outfit-delete]");
+  if (edit) {
+    const outfit = outfits.find(entry => String(entry.id) === String(edit.dataset.outfitEdit));
+    if (outfit) openOutfitDialog(outfit);
+    return;
+  }
+  if (remove) {
+    const outfit = outfits.find(entry => String(entry.id) === String(remove.dataset.outfitDelete));
+    if (!outfit || !confirm('Delete "' + outfit.name + '" from your Outfit Diary?')) return;
+    outfits = outfits.filter(entry => String(entry.id) !== String(outfit.id));
+    saveOutfits();
+    renderOutfits();
+  }
+});
 
 document.querySelectorAll(".archive-tab").forEach(tab => {
   tab.addEventListener("click", () => setView(tab.dataset.view));
