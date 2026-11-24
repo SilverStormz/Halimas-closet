@@ -343,12 +343,14 @@ h1 em {
   width: min(600px, calc(100% - 28px));
   max-height: calc (100dvh - 32px) ;
   padding: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 2px solid var(--pink);
   border-radius: 20px;
   background: var(--white);
   color: var(--ink);
   box-shadow: 0 15px 60px rgba(145, 97, 216, .2);
+  overscroll-behaviour: contain;
  
 }
 
@@ -359,9 +361,9 @@ h1 em {
 
 .item-form {
   padding: 22px 18px;
-  max-height: calc (90vh - 4vh);
-  overflow-y: auto;
-  box-sizing: border-box;
+  max-height: none;
+  overflow-y: visible;
+ 
 }
 
 
