@@ -340,7 +340,6 @@ h1 em {
 /* ADD ITEM WINDOW */
 
 .item-dialog {
-  overflow:hidden;
   width: min(600px, calc(100% - 28px));
   max-height: 90vh;
   padding: 0;
@@ -348,7 +347,7 @@ h1 em {
   border-radius: 20px;
   background: var(--white);
   color: var(--ink);
-  box-shadow: 8px 8px 0 #e8c5e2;
+ 
 }
 
 .item-dialog::backdrop {
