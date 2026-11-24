@@ -1411,4 +1411,9 @@ h3,
   margin:12px auto 0;
   border-radius:12px;
 }
-.outfit-dialog #outfitPhotoInput { display:block; }
+.outfit-dialog #outfitPhotoInput {
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+}
