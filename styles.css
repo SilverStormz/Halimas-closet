@@ -1537,7 +1537,42 @@ body:not(.is-owner) #measurementsSection { display: none !important; }
 .account-fab:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(70,48,90,.3); }
 .account-fab svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 @media (max-width: 760px) {
-  .auth-dialog { grid-template-columns: 1fr; padding: 34px 18px 20px; }
+  .auth-dialog {
+    width: calc(100vw - 28px);
+    max-width: 480px;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 38px 18px 20px;
+    border-radius: 18px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .auth-dialog > *,
+  .auth-dialog .auth-copy,
+  .auth-dialog .auth-form { min-width: 0; }
   .auth-dialog .auth-forgot-link,
-  .auth-dialog #resetPasswordForm { grid-column: auto; }
+  .auth-dialog #resetPasswordForm { grid-column: 1; }
+  .auth-dialog .field input { width: 100%; min-width: 0; }
+  .auth-dialog .auth-actions { gap: 8px; }
+  .auth-dialog .auth-actions button { min-height: 44px; }
+  .auth-close { top: 7px; right: 10px; min-width: 40px; min-height: 40px; }
+  .account-fab {
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    width: 56px;
+    height: 56px;
+    z-index: 1000;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .account-fab svg { width: 26px; height: 26px; }
+}
+@media (max-width: 380px) {
+  .auth-dialog { width: calc(100vw - 20px); padding-inline: 14px; }
+  .auth-dialog .auth-actions { flex-direction: column; align-items: stretch; }
+  .auth-dialog .auth-actions button { width: 100%; }
 }
