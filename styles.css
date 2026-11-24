@@ -1065,3 +1065,14 @@ h3,
     max-height: calc(100dvh - 56px);
   }
 }
+
+
+/* EDIT WARDROBE PIECES */
+.edit-button {
+  position: absolute; top: 9px; left: 9px; z-index: 1;
+  display: grid; place-items: center; width: 29px; height: 29px;
+  border: 0; border-radius: 50%; background: #fff9fc;
+  color: var(--button-purple-dark); font-size: 16px;
+  box-shadow: 0 2px 7px #00000012; cursor: pointer;
+}
+.edit-button:hover { background: #f4eafa; transform: translateY(-1px); }
