@@ -555,6 +555,8 @@ input:focus-visible {
   .intro-copy {
     max-width: 260px;
     line-height: 1.6;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .toolbar {
