@@ -15,6 +15,10 @@ const closetToolbar = document.getElementById("closetToolbar");
 const categoryNav = document.getElementById("categoryNav");
 const closetGrid = document.getElementById("closetGrid");
 const closetEmpty = document.getElementById("emptyState");
+const measurementsSection = document.getElementById("measurementsSection");
+const measurementsForm = document.getElementById("measurementsForm");
+const MEASUREMENTS_STORAGE_KEY = "halimas-closet-measurements-v1";
+const measurementFields = ["measureHeight","measureWeight","measureBust","measureWaist","measureHips","measureInseam","sizeTops","sizeBottoms","sizeDresses","sizeOuterwear","sizeBra","sizeShoes","sizeRings","sizeBracelet","sizeNecklace","sizeBelt","sizeHat","measureNotes"];
 const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
 let wishes = loadWishes();
 let activeView = "closet";
@@ -53,12 +57,14 @@ function setView(view) {
   activeView = view;
   document.querySelectorAll(".archive-tab").forEach(tab => tab.classList.toggle("active", tab.dataset.view === view));
   const showingCloset = view === "closet";
+  const showingWishlist = view === "wishlist";
   closetToolbar.hidden = !showingCloset;
   categoryNav.hidden = !showingCloset;
   closetGrid.hidden = !showingCloset;
   closetEmpty.hidden = !showingCloset || items.length !== 0;
-  wishlistSection.hidden = showingCloset;
-  if (!showingCloset) renderWishes();
+  wishlistSection.hidden = !showingWishlist;
+  measurementsSection.hidden = view !== "measurements";
+  if (showingWishlist) renderWishes();
 }
 let items = loadItems();
 let activeCategory = "All";
@@ -141,6 +147,32 @@ function openEditDialog(item) {
   dialog.showModal();
 }
 function openWishDialog() { wishDialog.showModal(); }
+
+function loadMeasurements() {
+  try { return JSON.parse(localStorage.getItem(MEASUREMENTS_STORAGE_KEY) || "{}"); }
+  catch { return {}; }
+}
+function populateMeasurements() {
+  const saved = loadMeasurements();
+  measurementFields.forEach(id => {
+    const field = document.getElementById(id);
+    if (field) field.value = saved[id] || "";
+  });
+}
+measurementsForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const profile = {};
+  measurementFields.forEach(id => { profile[id] = document.getElementById(id).value.trim(); });
+  try {
+    localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(profile));
+    const status = document.getElementById("measurementsSaved");
+    status.textContent = "Your sizing profile is saved ♡";
+  } catch {
+    alert("Your browser storage is full. Please try again.");
+  }
+});
+populateMeasurements();
+
 document.querySelectorAll(".archive-tab").forEach(tab => {
   tab.addEventListener("click", () => setView(tab.dataset.view));
 });
