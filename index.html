@@ -29,7 +29,57 @@
     <nav class="archive-tabs" aria-label="Your archive sections">
       <button class="archive-tab active" type="button" data-view="closet">My Closet</button>
       <button class="archive-tab" type="button" data-view="wishlist">Wish List <span aria-hidden="true">♡</span></button>
+      <button class="archive-tab" type="button" data-view="measurements">My Measurements <span aria-hidden="true">✿</span></button>
     </nav>
+
+    <section class="measurements-section" id="measurementsSection" hidden>
+      <div class="measurements-heading">
+        <div><p class="eyebrow">MY PERSONAL SIZE GUIDE</p><h2>My Measurements <span>✿</span></h2></div>
+        <p class="measurements-intro">A little reference for shopping, styling and finding the right fit.</p>
+      </div>
+      <form id="measurementsForm" class="measurements-form">
+        <div class="measurement-group">
+          <h3>My body measurements</h3>
+          <p>Keep your measurements in your preferred units.</p>
+          <div class="measurement-grid">
+            <label class="field">Height<input id="measureHeight" placeholder="e.g. 5 ft 4 in"></label>
+            <label class="field">Weight<input id="measureWeight" placeholder="e.g. 240 lb"></label>
+            <label class="field">Bust<input id="measureBust" placeholder="e.g. 42 in"></label>
+            <label class="field">Waist<input id="measureWaist" placeholder="e.g. 36 in"></label>
+            <label class="field">Hips<input id="measureHips" placeholder="e.g. 48 in"></label>
+            <label class="field">Inseam<input id="measureInseam" placeholder="e.g. 30 in"></label>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <h3>Clothing sizes</h3>
+          <p>Save your usual sizes by category or brand.</p>
+          <div class="measurement-grid">
+            <label class="field">Tops<input id="sizeTops" placeholder="e.g. XL / 16"></label>
+            <label class="field">Bottoms<input id="sizeBottoms" placeholder="e.g. 18 / 2X"></label>
+            <label class="field">Dresses<input id="sizeDresses" placeholder="e.g. 18 / 2X"></label>
+            <label class="field">Outerwear<input id="sizeOuterwear" placeholder="e.g. 2X"></label>
+            <label class="field">Bra size<input id="sizeBra" placeholder="e.g. 40G"></label>
+          </div>
+        </div>
+        <div class="measurement-group">
+          <h3>Accessories & extras</h3>
+          <p>For the little details that make all the difference.</p>
+          <div class="measurement-grid">
+            <label class="field">Shoes<input id="sizeShoes" placeholder="e.g. US 9"></label>
+            <label class="field">Rings<input id="sizeRings" placeholder="e.g. US 7"></label>
+            <label class="field">Bracelet / wrist<input id="sizeBracelet" placeholder="e.g. 7 in"></label>
+            <label class="field">Necklace length<input id="sizeNecklace" placeholder="e.g. 18 in"></label>
+            <label class="field">Belt<input id="sizeBelt" placeholder="e.g. 38 in"></label>
+            <label class="field">Hat / head<input id="sizeHat" placeholder="e.g. 22 in"></label>
+          </div>
+        </div>
+        <label class="field measurement-notes">Fit notes<textarea id="measureNotes" rows="3" placeholder="Preferred fit, sizing differences between brands, or anything useful to remember…"></textarea></label>
+        <div class="measurements-footer">
+          <span id="measurementsSaved" aria-live="polite">Saved privately in this browser.</span>
+          <button class="save-button" type="submit">Save my sizing profile ✿</button>
+        </div>
+      </form>
+    </section>
 
     <section class="toolbar" id="closetToolbar" aria-label="Wardrobe controls">
       <div class="inventory-count"><strong id="itemCount">0</strong><span>PIECES IN YOUR ARCHIVE</span></div>
