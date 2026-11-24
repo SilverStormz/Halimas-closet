@@ -341,7 +341,7 @@ h1 em {
 
 .item-dialog {
   width: min(600px, calc(100% - 28px));
-  max-height: calc (100dvh - 32px) ;
+  max-height: calc(100dvh - 32px);
   padding: 0;
   overflow-y: auto;
   overflow-x: hidden;
@@ -350,8 +350,7 @@ h1 em {
   background: var(--white);
   color: var(--ink);
   box-shadow: 0 15px 60px rgba(145, 97, 216, .2);
-  overscroll-behaviour: contain;
- 
+  overscroll-behavior: contain;
 }
 
 .item-dialog::backdrop {
@@ -362,9 +361,8 @@ h1 em {
 .item-form {
   padding: 22px 18px;
   max-height: none;
-  overflow-y: visible;
+  overflow: visible;
   border-radius: 18px;
- 
 }
 
 
