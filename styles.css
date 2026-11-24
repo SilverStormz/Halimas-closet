@@ -142,6 +142,8 @@ h1 em {
   font-size: 13px;
   margin: 22px 0 0;
   line-height: 1.7;
+  text-align: center;
+  color: #ff69b4; 
 }
 
 /* INVENTORY TOOLBAR */
