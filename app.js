@@ -562,6 +562,8 @@ const authStatus = document.getElementById("authStatus");
 const authSubmit = document.getElementById("authSubmit");
 const authSignUp = document.getElementById("authSignUp");
 const authSignOut = document.getElementById("authSignOut");
+const authForgotPassword = document.getElementById("authForgotPassword");
+const resetPasswordForm = document.getElementById("resetPasswordForm");
 let signedInUser = null;
 let cloudReady = false;
 let cloudInitPromise = null;
@@ -574,6 +576,7 @@ function applyOwnerView(user) {
   authSubmit.hidden = !!signedInUser;
   authSignUp.hidden = !!signedInUser;
   authSignOut.hidden = !signedInUser;
+  authForgotPassword.hidden = !!signedInUser;
   document.getElementById("authHeading").textContent = signedInUser ? "Your closet is unlocked ♡" : "Sign in to manage your closet";
   document.getElementById("authMessage").textContent = signedInUser
     ? "Signed in as " + signedInUser.email + ". Your wardrobe will sync across devices."
@@ -790,6 +793,41 @@ authSignUp.addEventListener("click", async () => {
     await initializeCloudData(data.user);
   }
 });
+authForgotPassword.addEventListener("click", async () => {
+  const email = document.getElementById("authEmail").value.trim();
+  if (!email) {
+    setCloudStatus("Enter your account email address first, then click Forgot password? again.");
+    document.getElementById("authEmail").focus();
+    return;
+  }
+  setCloudStatus("Sending a password reset link…");
+  const { error } = await authClient.auth.resetPasswordForEmail(email, {
+    redirectTo: "https://silverstormz.github.io/Halimas-closet/"
+  });
+  if (error) {
+    setCloudStatus("I couldn't send the reset email: " + error.message);
+    return;
+  }
+  setCloudStatus("Password reset email sent. Open the link in your inbox on this device, then choose a new password here.");
+});
+resetPasswordForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  const password = document.getElementById("newPassword").value;
+  if (password.length < 8) {
+    setCloudStatus("Please use at least 8 characters for your new password.");
+    return;
+  }
+  setCloudStatus("Updating your password…");
+  const { error } = await authClient.auth.updateUser({ password });
+  if (error) {
+    setCloudStatus("I couldn't update the password: " + error.message);
+    return;
+  }
+  resetPasswordForm.hidden = true;
+  authForm.hidden = false;
+  document.getElementById("newPassword").value = "";
+  setCloudStatus("Your password has been updated ♡ You can now sign in with it.");
+});
 authSignOut.addEventListener("click", async () => {
   setCloudStatus("Signing out…");
   const { error } = await authClient.auth.signOut();
@@ -805,6 +843,11 @@ authClient.auth.getSession().then(async ({ data, error }) => {
   await initializeCloudData(user);
 });
 authClient.auth.onAuthStateChange((_event, session) => {
+  if (_event === "PASSWORD_RECOVERY") {
+    resetPasswordForm.hidden = false;
+    authForm.hidden = true;
+    setCloudStatus("Choose a new password below to recover your account.");
+  }
   const user = session?.user || null;
   applyOwnerView(user);
   if (user && !cloudReady && !cloudInitPromise) initializeCloudData(user);
