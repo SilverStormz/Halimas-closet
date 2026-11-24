@@ -18,9 +18,14 @@
       <button class="add-button" id="openAddTop">＋ <span>Add a piece</span></button>
     </div>
   </header>
+  <button type="button" class="account-fab" id="openAuthDialog" aria-label="Open account sign in" title="Account">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M4.8 20c.6-3.6 3.4-5.5 7.2-5.5s6.6 1.9 7.2 5.5"></path></svg>
+  </button>
+
 
   <main class="page-shell">
-    <section class="auth-panel" id="authPanel" aria-label="Owner sign in">
+    <dialog class="auth-panel auth-dialog" id="authPanel" aria-label="Account sign in">
+      <button type="button" class="auth-close" id="closeAuthDialog" aria-label="Close sign in">×</button>
       <div class="auth-copy">
         <p class="eyebrow">YOUR PRIVATE LITTLE CORNER</p>
         <h2 id="authHeading">Sign in to manage your closet</h2>
@@ -41,7 +46,7 @@
         <label class="field">Choose a new password<input id="newPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters"></label>
         <button class="save-button" type="submit">Save new password</button>
       </form>
-    </section>
+    </dialog>
     <section class="intro">
       <p class="eyebrow">Welcome to my style</p>
       <h1>Lima's Closet.</em></h1>
