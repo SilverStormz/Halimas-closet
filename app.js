@@ -18,6 +18,8 @@ const closetEmpty = document.getElementById("emptyState");
 const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
 let wishes = loadWishes();
 let activeView = "closet";
+let editingItemId = null;
+let editingPhoto = "";
 
 function loadWishes() {
   try { return JSON.parse(localStorage.getItem(WISH_STORAGE_KEY) || "[]"); }
@@ -89,6 +91,7 @@ function render() {
     <article class="item-card">
       <div class="item-photo">
         <img src="${item.photo}" alt="${escapeHTML(item.name)}">
+        <button class="edit-button" data-edit="${item.id}" aria-label="Edit ${escapeHTML(item.name)}">✎</button>
         <button class="delete-button" data-delete="${item.id}" aria-label="Delete ${escapeHTML(item.name)}">×</button>
       </div>
       <div class="item-meta">
@@ -102,7 +105,41 @@ function render() {
     grid.innerHTML = '<p class="no-results">No pieces match your search.</p>';
   }
 }
-function openDialog() { dialog.showModal(); }
+function resetItemForm() {
+  editingItemId = null;
+  editingPhoto = "";
+  form.reset();
+  photoPreview.hidden = true;
+  photoPreview.removeAttribute("src");
+  photoLabel.textContent = "Add a photograph";
+  document.querySelector(".upload-icon").hidden = false;
+  document.querySelector(".photo-drop small").hidden = false;
+  document.querySelector("#itemForm .dialog-heading h2").textContent = "Add a piece";
+  document.querySelector("#itemForm .save-button").textContent = "Save to my closet";
+}
+function openDialog() {
+  resetItemForm();
+  dialog.showModal();
+}
+function openEditDialog(item) {
+  editingItemId = item.id;
+  editingPhoto = item.photo;
+  document.getElementById("nameInput").value = item.name || "";
+  document.getElementById("brandInput").value = item.brand || "";
+  document.getElementById("categoryInput").value = item.category || "";
+  document.getElementById("colorInput").value = item.color || "";
+  document.getElementById("sizeInput").value = item.size || "";
+  document.getElementById("notesInput").value = item.notes || "";
+  photoInput.value = "";
+  photoPreview.src = item.photo;
+  photoPreview.hidden = false;
+  photoLabel.textContent = "Current photo (choose to replace)";
+  document.querySelector(".upload-icon").hidden = true;
+  document.querySelector(".photo-drop small").hidden = true;
+  document.querySelector("#itemForm .dialog-heading h2").textContent = "Edit a piece";
+  document.querySelector("#itemForm .save-button").textContent = "Save changes";
+  dialog.showModal();
+}
 function openWishDialog() { wishDialog.showModal(); }
 document.querySelectorAll(".archive-tab").forEach(tab => {
   tab.addEventListener("click", () => setView(tab.dataset.view));
@@ -183,10 +220,11 @@ photoInput.addEventListener("change", () => {
 });
 form.addEventListener("submit", event => {
   event.preventDefault();
-  if (!photoPreview.src || photoPreview.hidden) { alert("Please add a photo first."); return; }
+  const photo = photoInput.files[0] ? photoPreview.src : (editingItemId ? editingPhoto : "");
+  if (!photo) { alert("Please add a photo first."); return; }
   const item = {
-    id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
-    photo: photoPreview.src,
+    id: editingItemId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    photo,
     name: document.getElementById("nameInput").value.trim(),
     brand: document.getElementById("brandInput").value.trim(),
     category: document.getElementById("categoryInput").value,
@@ -194,25 +232,28 @@ form.addEventListener("submit", event => {
     size: document.getElementById("sizeInput").value.trim(),
     notes: document.getElementById("notesInput").value.trim()
   };
-  items.unshift(item);
+  const previousItems = [...items];
+  if (editingItemId) { items = items.map(existing => existing.id === editingItemId ? item : existing); }
+  else { items.unshift(item); }
   if (saveItems()) {
-    form.reset();
-    photoPreview.hidden = true;
-    photoPreview.removeAttribute("src");
-    photoLabel.textContent = "Add a photograph";
-    document.querySelector(".upload-icon").hidden = false;
-    document.querySelector(".photo-drop small").hidden = false;
+    resetItemForm();
     dialog.close();
     activeCategory = "All";
     document.querySelectorAll(".category-chip").forEach(chip => chip.classList.toggle("active", chip.dataset.category === "All"));
     render();
-  } else { items.shift(); }
+  } else { items = previousItems; }
 });
 grid.addEventListener("click", event => {
+  const editButton = event.target.closest("[data-edit]");
+  if (editButton) {
+    const itemToEdit = items.find(entry => entry.id === editButton.dataset.edit);
+    if (itemToEdit) openEditDialog(itemToEdit);
+    return;
+  }
   const button = event.target.closest("[data-delete]");
   if (!button) return;
   const item = items.find(entry => entry.id === button.dataset.delete);
-  if (!item || !confirm(`Remove "${item.name}" from your closet?`)) return;
+  if (!item || !confirm("Remove \"" + item.name + "\" from your closet?")) return;
   items = items.filter(entry => entry.id !== item.id);
   saveItems();
   render();
