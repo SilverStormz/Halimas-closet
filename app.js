@@ -129,47 +129,38 @@ function saveItems() {
     return false;
   }
 }
-async function updateStorageIndicator() {
+function updateStorageIndicator() {
   const usageLabel = document.getElementById("storageUsage");
   const detailLabel = document.getElementById("storageDetail");
   const bar = document.getElementById("storageBar");
   if (!usageLabel || !detailLabel || !bar) return;
 
-  const formatBytes = bytes => {
-    if (!Number.isFinite(bytes) || bytes < 0) return "—";
-    if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-  };
-
+  const approximateLimit = 5 * 1024 * 1024;
+  let used = 0;
   try {
-    if (!navigator.storage || !navigator.storage.estimate) {
-      usageLabel.textContent = "Unavailable";
-      detailLabel.textContent = "Your browser does not report storage estimates.";
-      bar.style.width = "0%";
-      return;
+    for (let index = 0; index < localStorage.length; index++) {
+      const key = localStorage.key(index);
+      if (key && key.startsWith("halimas-closet-")) {
+        used += new Blob([key, localStorage.getItem(key) || ""]).size;
+      }
     }
-    const estimate = await navigator.storage.estimate();
-    const usage = estimate.usage;
-    const quota = estimate.quota;
-    if (!Number.isFinite(usage) || !Number.isFinite(quota) || quota <= 0) {
-      usageLabel.textContent = "Unavailable";
-      detailLabel.textContent = "Storage information is not available right now.";
-      bar.style.width = "0%";
-      return;
-    }
-    const percent = Math.min(100, Math.max(0, usage / quota * 100));
-    usageLabel.textContent = formatBytes(usage) + " used";
-    detailLabel.textContent = formatBytes(Math.max(0, quota - usage)) + " estimated available · shared by this website's browser data";
-    bar.style.width = percent.toFixed(1) + "%";
-    const meter = document.getElementById("storageMeter");
-    meter.classList.toggle("storage-warning", percent >= 80);
-    meter.classList.toggle("storage-critical", percent >= 95);
   } catch {
     usageLabel.textContent = "Unavailable";
-    detailLabel.textContent = "Could not read this device's storage estimate.";
+    detailLabel.textContent = "Could not read your saved closet data.";
     bar.style.width = "0%";
+    return;
   }
+
+  const formatMB = bytes => (bytes / (1024 * 1024)).toFixed(2) + " MB";
+  const percent = Math.min(100, used / approximateLimit * 100);
+  usageLabel.textContent = formatMB(used) + " used";
+  detailLabel.textContent = "Approx. " + formatMB(approximateLimit - Math.min(used, approximateLimit)) + " remaining of a typical 5 MB browser storage limit. Photos count too.";
+  bar.style.width = percent.toFixed(1) + "%";
+  const meter = document.getElementById("storageMeter");
+  meter.classList.toggle("storage-warning", percent >= 80);
+  meter.classList.toggle("storage-critical", percent >= 95);
 }
+
 
 function escapeHTML(value="") {
   return String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
