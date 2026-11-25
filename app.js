@@ -348,6 +348,7 @@ function loadFragrances() {
 function saveFragrances() {
   try {
     localStorage.setItem(FRAGRANCES_STORAGE_KEY, JSON.stringify(fragrances));
+    updateStorageIndicator();
     const profile = loadMeasurements();
     profile.fragranceLibrary = fragrances;
     localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(profile));
