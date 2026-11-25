@@ -486,15 +486,20 @@ function readBlobAsDataURL(blob) {
 
 async function optimizeClosetImage(blob, maxSide, type, quality) {
   if (typeof createImageBitmap !== "function") return blob;
-  const bitmap = await createImageBitmap(blob);
-  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
-  const context = canvas.getContext("2d");
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  return new Promise(resolve => canvas.toBlob(result => resolve(result || blob), type, quality));
+  try {
+    const bitmap = await createImageBitmap(blob);
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext("2d");
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    return await new Promise(resolve => canvas.toBlob(result => resolve(result || blob), type, quality));
+  } catch (error) {
+    console.warn("Using the original image size:", error);
+    return blob;
+  }
 }
 
 async function processClosetPhoto(file) {
