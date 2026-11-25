@@ -716,7 +716,7 @@ grid.addEventListener("click", event => {
   render();
 });
 render();
-
+updateStorageIndicator();
 
 renderWishes();
 
