@@ -38,6 +38,8 @@ let wishes = loadWishes();
 let activeView = "closet";
 let editingItemId = null;
 let editingPhoto = "";
+let editingOriginalPhoto = "";
+let photoProcessingPromise = Promise.resolve();
 
 function loadWishes() {
   try { return JSON.parse(localStorage.getItem(WISH_STORAGE_KEY) || "[]"); }
@@ -145,7 +147,12 @@ function render() {
 function resetItemForm() {
   editingItemId = null;
   editingPhoto = "";
+  editingOriginalPhoto = "";
+  photoProcessingPromise = Promise.resolve();
   form.reset();
+  document.getElementById("photoAutoRemove").checked = true;
+  document.getElementById("photoProcessingStatus").hidden = true;
+  document.getElementById("photoProcessingStatus").textContent = "";
   photoPreview.hidden = true;
   photoPreview.removeAttribute("src");
   photoLabel.textContent = "Add a photograph";
@@ -161,6 +168,10 @@ function openDialog() {
 function openEditDialog(item) {
   editingItemId = item.id;
   editingPhoto = item.photo;
+  editingOriginalPhoto = item.originalPhoto || item.photo || "";
+  document.getElementById("photoAutoRemove").checked = item.photoIsCutout === true;
+  document.getElementById("photoProcessingStatus").hidden = true;
+  document.getElementById("photoProcessingStatus").textContent = "";
   document.getElementById("nameInput").value = item.name || "";
   document.getElementById("brandInput").value = item.brand || "";
   document.getElementById("categoryInput").value = item.category || "";
@@ -464,27 +475,87 @@ document.getElementById("searchInput").addEventListener("input", event => {
   searchTerm = event.target.value.trim().toLowerCase();
   render();
 });
-photoInput.addEventListener("change", () => {
+function readBlobAsDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Could not read this photo."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function processClosetPhoto(file) {
+  const status = document.getElementById("photoProcessingStatus");
+  const removeBackground = document.getElementById("photoAutoRemove").checked;
+  editingOriginalPhoto = await readBlobAsDataURL(file);
+  if (!removeBackground) {
+    photoPreview.src = editingOriginalPhoto;
+    photoPreview.hidden = false;
+    status.hidden = true;
+    return;
+  }
+  status.hidden = false;
+  status.textContent = "Preparing your photo… the first cutout may take a little longer.";
+  try {
+    const module = await import("https://esm.sh/@imgly/background-removal@1.7.0");
+    const remove = module.default;
+    const cutout = await remove(file, {
+      model: "isnet_quint8",
+      output: { format: "image/png", type: "foreground" },
+      progress: (key, current, total) => {
+        if (total > 0) status.textContent = "Loading background remover… " + Math.round(current / total * 100) + "%";
+      }
+    });
+    photoPreview.src = await readBlobAsDataURL(cutout);
+    photoPreview.hidden = false;
+    status.textContent = "Background removed! Your original is kept safely ♡";
+  } catch (error) {
+    console.error("Background removal failed:", error);
+    photoPreview.src = editingOriginalPhoto;
+    photoPreview.hidden = false;
+    status.textContent = "Couldn't remove the background this time. Your original photo is ready to save.";
+  }
+}
+
+function queueSelectedPhotoProcessing() {
   const file = photoInput.files[0];
   if (!file) return;
-  if (!file.type.startsWith("image/")) { alert("Please choose an image file."); return; }
-  const reader = new FileReader();
-  reader.onload = () => {
-    photoPreview.src = reader.result;
-    photoPreview.hidden = false;
-    photoLabel.textContent = file.name;
-    document.querySelector(".upload-icon").hidden = true;
-    document.querySelector(".photo-drop small").hidden = true;
-  };
-  reader.readAsDataURL(file);
+  if (!file.type.startsWith("image/")) {
+    alert("Please choose an image file.");
+    photoInput.value = "";
+    return;
+  }
+  photoLabel.textContent = file.name;
+  document.querySelector(".upload-icon").hidden = true;
+  document.querySelector(".photo-drop small").hidden = true;
+  photoProcessingPromise = processClosetPhoto(file);
+}
+
+photoInput.addEventListener("change", queueSelectedPhotoProcessing);
+document.getElementById("photoAutoRemove").addEventListener("change", () => {
+  if (photoInput.files[0]) queueSelectedPhotoProcessing();
 });
-form.addEventListener("submit", event => {
+form.addEventListener("submit", async event => {
   event.preventDefault();
+  const saveButton = form.querySelector(".save-button");
+  saveButton.disabled = true;
+  const originalButtonText = saveButton.textContent;
+  saveButton.textContent = "Preparing photo…";
+  try {
+    await photoProcessingPromise;
+  } catch (error) {
+    console.error(error);
+  }
   const photo = photoInput.files[0] ? photoPreview.src : (editingItemId ? editingPhoto : "");
+  const existingItem = editingItemId ? items.find(existing => String(existing.id) === String(editingItemId)) : null;
+  const originalPhoto = photoInput.files[0] ? editingOriginalPhoto : (existingItem?.originalPhoto || "");
+  const photoIsCutout = photoInput.files[0] ? document.getElementById("photoAutoRemove").checked : (existingItem?.photoIsCutout === true);
   // Wishlist transfers may be saved without a photo; one can be added later.
   const item = {
     id: editingItemId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     photo,
+    originalPhoto,
+    photoIsCutout,
     name: document.getElementById("nameInput").value.trim(),
     brand: document.getElementById("brandInput").value.trim(),
     category: document.getElementById("categoryInput").value,
@@ -502,6 +573,8 @@ form.addEventListener("submit", event => {
     document.querySelectorAll(".category-chip").forEach(chip => chip.classList.toggle("active", chip.dataset.category === "All"));
     render();
   } else { items = previousItems; }
+  saveButton.disabled = false;
+  saveButton.textContent = originalButtonText;
 });
 grid.addEventListener("click", event => {
   const editButton = event.target.closest("[data-edit]");
@@ -669,6 +742,9 @@ async function prepareCloudRecord(record, collection) {
   const copy = { ...record };
   if (copy.photo && String(copy.photo).startsWith("data:")) {
     copy.photo = await uploadPhotoIfNeeded(copy.photo, collection, copy.id);
+  }
+  if (copy.originalPhoto && String(copy.originalPhoto).startsWith("data:")) {
+    copy.originalPhoto = await uploadPhotoIfNeeded(copy.originalPhoto, collection, String(copy.id) + "-original");
   }
   return copy;
 }
