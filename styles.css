@@ -2133,3 +2133,37 @@ body {
 @media(max-width:580px) { .fragrance-heading { align-items:flex-start; flex-direction:column; } .fragrance-tools { align-items:stretch; flex-direction:column; } .fragrance-tools select { width:100%; min-height:44px; } .fragrance-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; } .fragrance-card { padding:37px 11px 12px; } .fragrance-card h3 { font-size:17px; } }
 
 body:not(.is-owner) #openFragranceAdd, body:not(.is-owner) #openFragranceEmpty, body:not(.is-owner) .fragrance-actions { display:none !important; }
+
+
+/* Fragrance library responsive refinements */
+.fragrance-section, .fragrance-section * { box-sizing: border-box; }
+.fragrance-grid { width:100%; min-width:0; }
+.fragrance-card { min-width:0; overflow-wrap:anywhere; }
+.fragrance-card h3, .fragrance-notes, .fragrance-family { overflow-wrap:anywhere; word-break:normal; }
+.fragrance-tools input, .fragrance-tools select { min-width:0; max-width:100%; box-sizing:border-box; }
+.fragrance-tools .search-wrap { min-width:0; width:100%; }
+@media(max-width:580px) {
+  .archive-tabs { flex-wrap:wrap; gap:7px; }
+  .archive-tab { max-width:100%; }
+  .fragrance-section { padding:8px 0 36px; }
+  .fragrance-heading { gap:12px; }
+  .fragrance-heading h2 { font-size:clamp(23px,6vw,30px); line-height:1.15; }
+  .fragrance-heading .add-button { width:100%; }
+  .fragrance-intro { font-size:13px; line-height:1.5; }
+  .fragrance-tools { width:100%; gap:9px; }
+  .fragrance-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; }
+  .fragrance-card { padding:36px 9px 11px; border-radius:8px; }
+  .fragrance-card-top { font-size:8px; letter-spacing:.06em; gap:4px; flex-wrap:wrap; }
+  .fragrance-status { font-size:7px; }
+  .fragrance-bottle { width:56px; height:70px; margin:15px auto 12px; }
+  .fragrance-card h3 { font-size:clamp(14px,4vw,17px); line-height:1.2; }
+  .fragrance-card .item-brand { font-size:8px; overflow-wrap:anywhere; }
+  .fragrance-family,.fragrance-card .item-detail,.fragrance-notes { font-size:10px; line-height:1.4; }
+  .fragrance-actions { flex-wrap:wrap; gap:5px; }
+  .fragrance-actions button { flex:1 1 auto; min-width:0; padding:7px 6px; font-size:10px; }
+}
+@media(max-width:350px) {
+  .fragrance-grid { grid-template-columns:minmax(0,1fr); }
+  .fragrance-card { padding-left:13px; padding-right:13px; }
+  .fragrance-bottle { width:66px; height:80px; }
+}
