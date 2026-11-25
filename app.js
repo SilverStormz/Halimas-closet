@@ -32,6 +32,14 @@ let outfits = loadOutfits();
 let editingOutfitId = null;
 const measurementsForm = document.getElementById("measurementsForm");
 const MEASUREMENTS_STORAGE_KEY = "halimas-closet-measurements-v1";
+const FRAGRANCES_STORAGE_KEY = "halimas-closet-fragrances-v1";
+const fragranceSection = document.getElementById("fragranceSection");
+const fragranceGrid = document.getElementById("fragranceGrid");
+const fragranceEmpty = document.getElementById("fragranceEmpty");
+const fragranceDialog = document.getElementById("fragranceDialog");
+const fragranceForm = document.getElementById("fragranceForm");
+let fragrances = loadFragrances();
+let editingFragranceId = null;
 const measurementFields = ["measureHeight","measureWeight","measureBust","measureWaist","measureHips","measureInseam","sizeTops","sizeBottoms","sizeDresses","sizeOuterwear","sizeBra","sizeShoes","sizeRings","sizeBracelet","sizeNecklace","sizeBelt","sizeHat","measureNotes"];
 const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
 let wishes = loadWishes();
@@ -76,6 +84,7 @@ function setView(view) {
   const showingCloset = view === "closet";
   const showingWishlist = view === "wishlist";
   const showingOutfits = view === "outfits";
+  const showingFragrances = view === "fragrances";
   closetToolbar.hidden = !showingCloset;
   categoryNav.hidden = !showingCloset;
   closetGrid.hidden = !showingCloset;
@@ -83,8 +92,10 @@ function setView(view) {
   wishlistSection.hidden = !showingWishlist;
   measurementsSection.hidden = view !== "measurements";
   outfitsSection.hidden = !showingOutfits;
+  fragranceSection.hidden = !showingFragrances;
   if (showingWishlist) renderWishes();
   if (showingOutfits) renderOutfits();
+  if (showingFragrances) renderFragrances();
 }
 let items = loadItems();
 function migrateLookbookIntoOutfits() {
@@ -285,6 +296,56 @@ function loadMeasurements() {
   try { return JSON.parse(localStorage.getItem(MEASUREMENTS_STORAGE_KEY) || "{}"); }
   catch { return {}; }
 }
+function loadFragrances() {
+  try { return JSON.parse(localStorage.getItem(FRAGRANCES_STORAGE_KEY) || "[]"); }
+  catch { return []; }
+}
+function saveFragrances() {
+  try {
+    localStorage.setItem(FRAGRANCES_STORAGE_KEY, JSON.stringify(fragrances));
+    const profile = loadMeasurements();
+    profile.fragranceLibrary = fragrances;
+    localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(profile));
+    if (signedInUser && cloudReady) syncMeasurements(profile).then(() => setCloudStatus("Your fragrance library is saved and synced ♡")).catch(error => setCloudStatus("Saved on this device, but cloud sync needs attention: " + error.message));
+    return true;
+  } catch (error) {
+    alert("Your browser storage is full. Try removing a few fragrance entries.");
+    return false;
+  }
+}
+function renderFragrances() {
+  const term = (document.getElementById("fragranceSearch")?.value || "").trim().toLowerCase();
+  const filter = document.getElementById("fragranceFilter")?.value || "All";
+  const filtered = fragrances.filter(item => (filter === "All" || item.status === filter) && [item.name,item.brand,item.family,item.occasion,item.notes].join(" ").toLowerCase().includes(term));
+  fragranceGrid.innerHTML = filtered.map(item => `
+    <article class="fragrance-card">
+      <div class="fragrance-card-top"><span>✧ SCENT FILE</span><span class="fragrance-status">${escapeHTML(item.status === "Wishlist" ? "WISH LIST" : "IN MY COLLECTION")}</span></div>
+      <div class="fragrance-bottle" aria-hidden="true">✧</div>
+      <p class="item-brand">${escapeHTML(item.brand || "FRAGRANCE")}</p>
+      <h3>${escapeHTML(item.name)}</h3>
+      <p class="fragrance-family">${escapeHTML(item.family || "Scent family not set")}</p>
+      ${item.occasion ? `<p class="item-detail">Best for: ${escapeHTML(item.occasion)}</p>` : ""}
+      ${item.notes ? `<p class="fragrance-notes">${escapeHTML(item.notes)}</p>` : ""}
+      <div class="fragrance-actions"><button type="button" data-fragrance-edit="${escapeHTML(item.id)}">Edit ✎</button><button type="button" data-fragrance-delete="${escapeHTML(item.id)}">Delete ×</button></div>
+    </article>`).join("");
+  fragranceEmpty.hidden = fragrances.length > 0;
+  fragranceEmpty.querySelector("h2").textContent = term || filter !== "All" ? "No scents found." : "Your scent story starts here.";
+  fragranceEmpty.querySelector("p").textContent = term || filter !== "All" ? "Try another search or filter." : "Add the fragrances you wear, love, or have been wanting to try.";
+  document.getElementById("openFragranceEmpty").hidden = fragrances.length > 0 || !!term || filter !== "All";
+}
+function openFragranceDialog(item = null) {
+  editingFragranceId = item?.id || null;
+  fragranceForm.reset();
+  document.getElementById("fragranceDialogTitle").textContent = item ? "Edit a fragrance" : "Add a fragrance";
+  document.getElementById("fragranceName").value = item?.name || "";
+  document.getElementById("fragranceBrand").value = item?.brand || "";
+  document.getElementById("fragranceStatus").value = item?.status || "Owned";
+  document.getElementById("fragranceFamily").value = item?.family || "";
+  document.getElementById("fragranceOccasion").value = item?.occasion || "";
+  document.getElementById("fragranceNotes").value = item?.notes || "";
+  document.getElementById("saveFragranceButton").textContent = item ? "Save changes ✧" : "Save fragrance ✧";
+  fragranceDialog.showModal();
+}
 function populateMeasurements() {
   const saved = loadMeasurements();
   measurementFields.forEach(id => {
@@ -294,8 +355,9 @@ function populateMeasurements() {
 }
 measurementsForm.addEventListener("submit", event => {
   event.preventDefault();
-  const profile = {};
+  const profile = loadMeasurements();
   measurementFields.forEach(id => { profile[id] = document.getElementById(id).value.trim(); });
+  profile.fragranceLibrary = fragrances;
   try {
     localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(profile));
     const status = document.getElementById("measurementsSaved");
@@ -309,6 +371,27 @@ measurementsForm.addEventListener("submit", event => {
   }
 });
 populateMeasurements();
+
+
+document.getElementById("openFragranceAdd").addEventListener("click", () => openFragranceDialog());
+document.getElementById("openFragranceEmpty").addEventListener("click", () => openFragranceDialog());
+document.getElementById("closeFragranceDialog").addEventListener("click", () => fragranceDialog.close());
+document.getElementById("fragranceSearch").addEventListener("input", renderFragrances);
+document.getElementById("fragranceFilter").addEventListener("change", renderFragrances);
+fragranceForm.addEventListener("submit", event => {
+  event.preventDefault();
+  const item = { id: editingFragranceId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())), name: document.getElementById("fragranceName").value.trim(), brand: document.getElementById("fragranceBrand").value.trim(), status: document.getElementById("fragranceStatus").value, family: document.getElementById("fragranceFamily").value, occasion: document.getElementById("fragranceOccasion").value, notes: document.getElementById("fragranceNotes").value.trim() };
+  const previous = [...fragrances];
+  if (editingFragranceId) fragrances = fragrances.map(entry => entry.id === editingFragranceId ? item : entry);
+  else fragrances.unshift(item);
+  if (saveFragrances()) { fragranceDialog.close(); setView("fragrances"); } else fragrances = previous;
+});
+fragranceGrid.addEventListener("click", event => {
+  const edit = event.target.closest("[data-fragrance-edit]");
+  const remove = event.target.closest("[data-fragrance-delete]");
+  if (edit) { const item = fragrances.find(entry => entry.id === edit.dataset.fragranceEdit); if (item) openFragranceDialog(item); return; }
+  if (remove) { const item = fragrances.find(entry => entry.id === remove.dataset.fragranceDelete); if (!item) return; if (!confirm("Delete " + item.name + " from your fragrance library?")) return; const previous = [...fragrances]; fragrances = fragrances.filter(entry => entry.id !== item.id); if (!saveFragrances()) fragrances = previous; renderFragrances(); }
+});
 
 
 document.getElementById("openOutfitTop").addEventListener("click", () => openOutfitDialog());
@@ -624,6 +707,7 @@ const BACKUP_KEYS = [
   STORAGE_KEY,
   WISH_STORAGE_KEY,
   MEASUREMENTS_STORAGE_KEY,
+  FRAGRANCES_STORAGE_KEY,
   OUTFITS_STORAGE_KEY,
   WORN_KEY
 ];
@@ -844,7 +928,8 @@ async function loadPublicArchive() {
     render();
     renderWishes();
     renderOutfits();
-    if (activeView === "outfits") setView("outfits");
+    renderFragrances();
+    if (activeView === "outfits" || activeView === "fragrances") setView(activeView);
   } catch (error) {
     console.error("Could not load the public closet archive:", error);
   }
@@ -885,6 +970,8 @@ async function initializeCloudData(user) {
       saveLocalCollection(OUTFITS_STORAGE_KEY, outfits);
       if (measureResult.data?.data) {
         localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(measureResult.data.data));
+        fragrances = Array.isArray(measureResult.data.data.fragranceLibrary) ? measureResult.data.data.fragranceLibrary : fragrances;
+        saveLocalCollection(FRAGRANCES_STORAGE_KEY, fragrances);
         populateMeasurements();
       }
       // First login migrates the existing browser data. Later logins merge local and cloud records.
@@ -892,7 +979,8 @@ async function initializeCloudData(user) {
       await syncCollection("wishlist_items", wishes, "wishlist");
       await syncCollection("outfits", outfits, "outfits");
       const profile = loadMeasurements();
-      if (Object.values(profile).some(value => String(value || "").trim())) {
+      profile.fragranceLibrary = fragrances;
+      if (Object.values(profile).some(value => Array.isArray(value) ? value.length > 0 : String(value || "").trim())) {
         await syncMeasurements(profile);
       }
       cloudReady = true;
@@ -900,6 +988,7 @@ async function initializeCloudData(user) {
       render();
       renderWishes();
       renderOutfits();
+      renderFragrances();
     } catch (error) {
       console.error("Halima's Closet cloud setup failed:", error);
       setCloudStatus("Cloud connection needs attention: " + error.message + ". Your original browser data is still saved.");
