@@ -2069,3 +2069,37 @@ body {
   background-size: 440px 340px, 7px 7px, 100% 5px, cover !important;
   background-attachment: fixed !important;
 }
+
+
+/* AUTOMATIC CLOTHING PHOTO CUTOUT */
+.photo-cutout-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 2px 4px;
+  color: var(--window-ink, #302b38);
+  cursor: pointer;
+  font-size: 11px;
+}
+.photo-cutout-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: #8e78ad;
+  flex: 0 0 auto;
+}
+.photo-cutout-toggle span { display: grid; gap: 3px; }
+.photo-cutout-toggle strong { font-weight: 600; }
+.photo-cutout-toggle small { color: var(--window-muted, #817b89); font-size: 10px; }
+.photo-processing-status {
+  margin: 8px 2px 0;
+  color: #725b8b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.photo-processing-status[hidden] { display: none; }
+#photoPreview {
+  background-color: #f7f4fa;
+  background-image: linear-gradient(45deg, #e9e3ef 25%, transparent 25%), linear-gradient(-45deg, #e9e3ef 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e9e3ef 75%), linear-gradient(-45deg, transparent 75%, #e9e3ef 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+}
