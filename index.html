@@ -58,6 +58,7 @@
       <button class="archive-tab" type="button" data-view="wishlist">Wish List <span aria-hidden="true">♡</span></button>
       <button class="archive-tab" type="button" data-view="measurements">My Measurements <span aria-hidden="true">✿</span></button>
       <button class="archive-tab" type="button" data-view="outfits">Outfit Diary <span aria-hidden="true">♡</span></button>
+      <button class="archive-tab" type="button" data-view="fragrances">Fragrance Library <span aria-hidden="true">✧</span></button>
     </nav>
 
     <section class="backup-strip" aria-label="Back up your closet">
@@ -133,6 +134,20 @@
           <button class="save-button" type="submit">Save my sizing profile ✿</button>
         </div>
       </form>
+    </section>
+
+    <section class="fragrance-section" id="fragranceSection" hidden>
+      <div class="fragrance-heading">
+        <div><p class="eyebrow">THE SCENT EDIT</p><h2>My Fragrance Library <span>✧</span></h2></div>
+        <button class="add-button" id="openFragranceAdd" type="button">＋ Add a fragrance</button>
+      </div>
+      <p class="fragrance-intro">A little archive of the scents I love, wear, and want to discover.</p>
+      <div class="fragrance-tools">
+        <label class="search-wrap"><span aria-hidden="true">⌕</span><input id="fragranceSearch" type="search" placeholder="Search your scents…" aria-label="Search fragrances"></label>
+        <select id="fragranceFilter" aria-label="Filter fragrances"><option value="All">All fragrances</option><option value="Owned">In my collection</option><option value="Wishlist">On my wish list</option></select>
+      </div>
+      <div class="fragrance-grid" id="fragranceGrid" aria-live="polite"></div>
+      <div class="fragrance-empty" id="fragranceEmpty"><div class="empty-mark">✧</div><h2>Your scent story starts here.</h2><p>Add the fragrances you wear, love, or have been wanting to try.</p><button class="add-button" id="openFragranceEmpty" type="button">＋ Add your first fragrance</button></div>
     </section>
 
     <section class="toolbar" id="closetToolbar" aria-label="Wardrobe controls">
@@ -268,6 +283,21 @@
         <p id="outfitSearchNoResults" class="outfit-no-results" hidden>No pieces match your search.</p>
       </div>
       <button class="save-button" type="submit">Save this outfit ♡</button>
+    </form>
+  </dialog>
+
+  <dialog class="item-dialog fragrance-dialog" id="fragranceDialog">
+    <form id="fragranceForm" class="item-form">
+      <div class="dialog-heading"><div><p class="eyebrow">ADD TO THE SCENT EDIT</p><h2 id="fragranceDialogTitle">Add a fragrance</h2></div><button type="button" class="close-button" id="closeFragranceDialog" aria-label="Close">×</button></div>
+      <div class="form-grid">
+        <label class="field full">Fragrance name<input id="fragranceName" required placeholder="e.g. Libre Eau de Parfum"></label>
+        <label class="field">Brand<input id="fragranceBrand" placeholder="e.g. YSL"></label>
+        <label class="field">Collection status<select id="fragranceStatus"><option value="Owned">In my collection</option><option value="Wishlist">On my wish list</option></select></label>
+        <label class="field">Fragrance family<select id="fragranceFamily"><option value="">Choose a family</option><option>Floral</option><option>Gourmand</option><option>Woody</option><option>Fresh</option><option>Amber / Oriental</option><option>Fruity</option><option>Musky</option><option>Chypre</option><option>Other</option></select></label>
+        <label class="field">Best for<select id="fragranceOccasion"><option value="">Any occasion</option><option>Everyday</option><option>Work</option><option>Date night</option><option>Going out</option><option>Special occasion</option></select></label>
+        <label class="field full">Notes<textarea id="fragranceNotes" rows="3" placeholder="Vanilla, musk, amber, rose… or your personal thoughts"></textarea></label>
+      </div>
+      <button class="save-button" type="submit" id="saveFragranceButton">Save fragrance ✧</button>
     </form>
   </dialog>
 
