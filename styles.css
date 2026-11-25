@@ -2228,3 +2228,83 @@ body:not(.is-owner) #openFragranceAdd, body:not(.is-owner) #openFragranceEmpty, 
     letter-spacing: .12em;
   }
 }
+
+
+/* CLOSET STORAGE METER */
+.inventory-summary {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  min-width: 0;
+}
+.storage-meter {
+  width: min(260px, 35vw);
+  min-width: 150px;
+  padding-left: 16px;
+  border-left: 1px solid var(--window-line);
+  color: var(--window-muted);
+  font: 10px/1.4 "Space Grotesk", sans-serif;
+}
+.storage-meter-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.storage-meter-copy strong {
+  color: var(--window-ink);
+  font-size: 10px;
+  white-space: nowrap;
+}
+.storage-meter-track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #e9e3ef;
+}
+.storage-meter-track span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #9a85b5;
+  transition: width .25s ease;
+}
+.storage-meter small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  line-height: 1.4;
+}
+.storage-meter.storage-warning .storage-meter-track span { background: #c39a62; }
+.storage-meter.storage-critical .storage-meter-track span { background: #bd747c; }
+@media (max-width: 700px) {
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .inventory-summary {
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .storage-meter {
+    width: min(58%, 240px);
+    min-width: 0;
+    padding-left: 12px;
+  }
+}
+@media (max-width: 380px) {
+  .inventory-summary {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .storage-meter {
+    width: 100%;
+    padding: 9px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--window-line);
+  }
+}
