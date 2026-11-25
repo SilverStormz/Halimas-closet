@@ -587,39 +587,11 @@ async function optimizeClosetImage(blob, maxSide, type, quality) {
 
 async function processClosetPhoto(file) {
   const status = document.getElementById("photoProcessingStatus");
-  const autoRemoveToggle = document.getElementById("photoAutoRemove");
-  const removeBackground = autoRemoveToggle.checked;
   const optimizedOriginal = await optimizeClosetImage(file, 1400, "image/jpeg", 0.82);
   editingOriginalPhoto = await readBlobAsDataURL(optimizedOriginal);
-  if (!removeBackground) {
-    photoPreview.src = editingOriginalPhoto;
-    photoPreview.hidden = false;
-    status.hidden = true;
-    return;
-  }
-  status.hidden = false;
-  status.textContent = "Preparing your photo… the first cutout may take a little longer.";
-  try {
-    const module = await import("https://esm.sh/@imgly/background-removal@1.7.0");
-    const remove = module.default;
-    const cutout = await remove(file, {
-      model: "isnet_quint8",
-      output: { format: "image/png", type: "foreground" },
-      progress: (key, current, total) => {
-        if (total > 0) status.textContent = "Loading background remover… " + Math.round(current / total * 100) + "%";
-      }
-    });
-    const optimizedCutout = await optimizeClosetImage(cutout, 1400, "image/png");
-    photoPreview.src = await readBlobAsDataURL(optimizedCutout);
-    photoPreview.hidden = false;
-    status.textContent = "Background removed! Your original is kept safely ♡";
-  } catch (error) {
-    console.error("Background removal failed:", error);
-    photoPreview.src = editingOriginalPhoto;
-    photoPreview.hidden = false;
-    autoRemoveToggle.checked = false;
-    status.textContent = "Couldn't remove the background this time. Your original photo is ready to save.";
-  }
+  photoPreview.src = editingOriginalPhoto;
+  photoPreview.hidden = false;
+  if (status) status.hidden = true;
 }
 
 function queueSelectedPhotoProcessing() {
