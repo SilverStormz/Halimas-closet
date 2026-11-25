@@ -484,10 +484,25 @@ function readBlobAsDataURL(blob) {
   });
 }
 
+async function optimizeClosetImage(blob, maxSide, type, quality) {
+  if (typeof createImageBitmap !== "function") return blob;
+  const bitmap = await createImageBitmap(blob);
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+  const context = canvas.getContext("2d");
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return new Promise(resolve => canvas.toBlob(result => resolve(result || blob), type, quality));
+}
+
 async function processClosetPhoto(file) {
   const status = document.getElementById("photoProcessingStatus");
-  const removeBackground = document.getElementById("photoAutoRemove").checked;
-  editingOriginalPhoto = await readBlobAsDataURL(file);
+  const autoRemoveToggle = document.getElementById("photoAutoRemove");
+  const removeBackground = autoRemoveToggle.checked;
+  const optimizedOriginal = await optimizeClosetImage(file, 1400, "image/jpeg", 0.82);
+  editingOriginalPhoto = await readBlobAsDataURL(optimizedOriginal);
   if (!removeBackground) {
     photoPreview.src = editingOriginalPhoto;
     photoPreview.hidden = false;
@@ -506,13 +521,15 @@ async function processClosetPhoto(file) {
         if (total > 0) status.textContent = "Loading background remover… " + Math.round(current / total * 100) + "%";
       }
     });
-    photoPreview.src = await readBlobAsDataURL(cutout);
+    const optimizedCutout = await optimizeClosetImage(cutout, 1400, "image/png");
+    photoPreview.src = await readBlobAsDataURL(optimizedCutout);
     photoPreview.hidden = false;
     status.textContent = "Background removed! Your original is kept safely ♡";
   } catch (error) {
     console.error("Background removal failed:", error);
     photoPreview.src = editingOriginalPhoto;
     photoPreview.hidden = false;
+    autoRemoveToggle.checked = false;
     status.textContent = "Couldn't remove the background this time. Your original photo is ready to save.";
   }
 }
