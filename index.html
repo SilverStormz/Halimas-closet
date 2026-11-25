@@ -151,7 +151,14 @@
     </section>
 
     <section class="toolbar" id="closetToolbar" aria-label="Wardrobe controls">
-      <div class="inventory-count"><strong id="itemCount">0</strong><span>PIECES IN YOUR ARCHIVE</span></div>
+      <div class="inventory-summary">
+        <div class="inventory-count"><strong id="itemCount">0</strong><span>PIECES IN YOUR ARCHIVE</span></div>
+        <div class="storage-meter" id="storageMeter" aria-live="polite">
+          <div class="storage-meter-copy"><span>Browser storage</span><strong id="storageUsage">Checking…</strong></div>
+          <div class="storage-meter-track"><span id="storageBar"></span></div>
+          <small id="storageDetail">Checking available space on this device</small>
+        </div>
+      </div>
       <label class="search-wrap">
         <span aria-hidden="true">⌕</span>
         <input id="searchInput" type="search" placeholder="Search your closet…" aria-label="Search your closet">
