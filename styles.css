@@ -2103,3 +2103,31 @@ body {
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0;
 }
+
+
+/* FRAGRANCE LIBRARY — scent archive */
+.fragrance-section { padding: 12px 0 54px; }
+.fragrance-heading { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:18px 0 16px; border-bottom:1px solid var(--window-line); }
+.fragrance-heading h2 { margin:4px 0 0; color:var(--window-ink); }
+.fragrance-heading h2 span { color:var(--window-accent); }
+.fragrance-intro { color:var(--window-muted); margin:16px 0 22px; }
+.fragrance-tools { display:flex; gap:12px; align-items:center; margin-bottom:22px; }
+.fragrance-tools .search-wrap { flex:1; }
+.fragrance-tools select { min-height:42px; padding:8px 12px; border:1px solid var(--window-line); border-radius:8px; background:#fff; color:var(--window-ink); font:inherit; }
+.fragrance-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:18px; }
+.fragrance-card { position:relative; overflow:hidden; min-width:0; padding:38px 16px 15px; border:1px solid var(--window-line); border-radius:11px; background:#fff; box-shadow:2px 4px 0 rgba(74,60,76,.07),0 5px 16px rgba(42,32,54,.04); }
+.fragrance-card::before { content:""; position:absolute; top:0; left:0; right:0; height:29px; border-bottom:1px solid var(--window-line); background-color:#fbfafc; background-image:radial-gradient(circle at 14px 14px,#ed8c91 0 3px,transparent 3.6px),radial-gradient(circle at 27px 14px,#e9c477 0 3px,transparent 3.6px),radial-gradient(circle at 40px 14px,#8dc7a2 0 3px,transparent 3.6px); background-repeat:no-repeat; }
+.fragrance-card-top { display:flex; justify-content:space-between; gap:8px; color:var(--window-accent); font:600 9px "Space Grotesk",sans-serif; letter-spacing:.12em; }
+.fragrance-status { color:#8a8191; font-size:8px; text-align:right; }
+.fragrance-bottle { display:grid; place-items:center; width:74px; height:92px; margin:20px auto 16px; border:1px solid #d9cde5; border-radius:18px 18px 10px 10px; background:linear-gradient(145deg,#f8f4fb,#e9e0f1); color:#9a82b5; font:32px "Bodoni Moda",serif; box-shadow:inset 0 0 0 5px rgba(255,255,255,.5),0 5px 12px rgba(75,57,91,.08); }
+.fragrance-card .item-brand { margin:0 0 5px; font-size:9px; }
+.fragrance-card h3 { margin:0 0 5px; font:600 20px "Bodoni Moda",Georgia,serif; color:var(--window-ink); }
+.fragrance-family { margin:0 0 8px; color:var(--window-accent); font-size:11px; }
+.fragrance-card .item-detail,.fragrance-notes { color:var(--window-muted); font-size:11px; line-height:1.5; }
+.fragrance-actions { display:flex; gap:8px; margin-top:14px; }
+.fragrance-actions button { border:1px solid var(--window-line); border-radius:6px; padding:7px 10px; background:#faf9fb; color:var(--window-accent); font:11px "Space Grotesk",sans-serif; }
+.fragrance-empty { padding:42px 18px; text-align:center; border:1px dashed #cfc3da; background:rgba(255,255,255,.55); }
+.fragrance-empty[hidden] { display:none; }
+.fragrance-empty h2 { margin:8px 0; font:600 26px "Bodoni Moda",serif; }
+.fragrance-empty p { color:var(--window-muted); }
+@media(max-width:580px) { .fragrance-heading { align-items:flex-start; flex-direction:column; } .fragrance-tools { align-items:stretch; flex-direction:column; } .fragrance-tools select { width:100%; min-height:44px; } .fragrance-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; } .fragrance-card { padding:37px 11px 12px; } .fragrance-card h3 { font-size:17px; } }
