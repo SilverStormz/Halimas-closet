@@ -808,6 +808,8 @@ function applyOwnerView(user) {
     ? "Signed in as " + signedInUser.email + ". Your wardrobe will sync across devices."
     : "You can browse the shared archive. Sign in with your email to manage your pieces and outfits.";
   document.querySelector('[data-view="measurements"]').hidden = !signedInUser;
+  document.querySelector('[data-view="fragrances"]').hidden = !signedInUser;
+  if (!signedInUser && activeView === "fragrances") setView("closet");
   if (!signedInUser && activeView === "measurements") setView("closet");
 }
 
