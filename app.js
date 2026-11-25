@@ -306,7 +306,7 @@ function saveFragrances() {
     const profile = loadMeasurements();
     profile.fragranceLibrary = fragrances;
     localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(profile));
-    if (signedInUser && cloudReady) syncMeasurements(profile).then(() => setCloudStatus("Your fragrance library is saved and synced ♡")).catch(error => setCloudStatus("Saved on this device, but cloud sync needs attention: " + error.message));
+    if (signedInUser && cloudReady) Promise.all([syncMeasurements(profile), syncPublicFragrances()]).then(() => setCloudStatus("Your fragrance library is saved and public ♡")).catch(error => setCloudStatus("Saved on this device, but cloud sync needs attention: " + error.message));
     return true;
   } catch (error) {
     alert("Your browser storage is full. Try removing a few fragrance entries.");
@@ -808,8 +808,7 @@ function applyOwnerView(user) {
     ? "Signed in as " + signedInUser.email + ". Your wardrobe will sync across devices."
     : "You can browse the shared archive. Sign in with your email to manage your pieces and outfits.";
   document.querySelector('[data-view="measurements"]').hidden = !signedInUser;
-  document.querySelector('[data-view="fragrances"]').hidden = !signedInUser;
-  if (!signedInUser && activeView === "fragrances") setView("closet");
+  document.querySelector('[data-view="fragrances"]').hidden = false;
   if (!signedInUser && activeView === "measurements") setView("closet");
 }
 
@@ -886,6 +885,17 @@ async function syncCollection(table, records, collection) {
   }
 }
 
+async function syncPublicFragrances() {
+  if (!signedInUser) return;
+  const { error } = await authClient.from("measurements").upsert({
+    user_id: signedInUser.id,
+    legacy_id: "fragrance-library",
+    data: { items: fragrances },
+    is_public: true
+  }, { onConflict: "user_id,legacy_id" });
+  if (error) throw error;
+}
+
 async function syncMeasurements(profile) {
   if (!signedInUser) return;
   const { error } = await authClient.from("measurements").upsert({
@@ -913,17 +923,22 @@ function queueCloudSync(collection) {
 
 async function loadPublicArchive() {
   try {
-    const [closetResult, wishResult, outfitResult] = await Promise.all([
+    const [closetResult, wishResult, outfitResult, fragranceResult] = await Promise.all([
       authClient.from("closet_items").select("data").eq("is_public", true),
       authClient.from("wishlist_items").select("data").eq("is_public", true),
-      authClient.from("outfits").select("data").eq("is_public", true)
+      authClient.from("outfits").select("data").eq("is_public", true),
+      authClient.from("measurements").select("data").eq("legacy_id", "fragrance-library").eq("is_public", true)
     ]);
-    for (const result of [closetResult, wishResult, outfitResult]) {
+    for (const result of [closetResult, wishResult, outfitResult, fragranceResult]) {
       if (result.error) throw result.error;
     }
     items = (closetResult.data || []).map(row => row.data).filter(Boolean);
     wishes = (wishResult.data || []).map(row => row.data).filter(Boolean);
     outfits = (outfitResult.data || []).map(row => row.data).filter(Boolean);
+    if (fragranceResult.data?.length) {
+      fragrances = fragranceResult.data.flatMap(row => Array.isArray(row.data?.items) ? row.data.items : []);
+      saveLocalCollection(FRAGRANCES_STORAGE_KEY, fragrances);
+    }
     saveLocalCollection(STORAGE_KEY, items);
     saveLocalCollection(WISH_STORAGE_KEY, wishes);
     saveLocalCollection(OUTFITS_STORAGE_KEY, outfits);
@@ -949,13 +964,14 @@ async function initializeCloudData(user) {
     cloudReady = false;
     setCloudStatus("Connecting your closet to the cloud…");
     try {
-      const [closetResult, wishResult, outfitResult, measureResult] = await Promise.all([
+      const [closetResult, wishResult, outfitResult, measureResult, fragranceResult] = await Promise.all([
         authClient.from("closet_items").select("legacy_id,data").eq("user_id", user.id),
         authClient.from("wishlist_items").select("legacy_id,data").eq("user_id", user.id),
         authClient.from("outfits").select("legacy_id,data").eq("user_id", user.id),
-        authClient.from("measurements").select("data").eq("user_id", user.id).eq("legacy_id", "profile").maybeSingle()
+        authClient.from("measurements").select("data").eq("user_id", user.id).eq("legacy_id", "profile").maybeSingle(),
+        authClient.from("measurements").select("data").eq("legacy_id", "fragrance-library").eq("is_public", true)
       ]);
-      for (const result of [closetResult, wishResult, outfitResult, measureResult]) {
+      for (const result of [closetResult, wishResult, outfitResult, measureResult, fragranceResult]) {
         if (result.error) throw result.error;
       }
       const cloudItems = (closetResult.data || []).map(row => row.data).filter(Boolean);
@@ -973,13 +989,17 @@ async function initializeCloudData(user) {
       if (measureResult.data?.data) {
         localStorage.setItem(MEASUREMENTS_STORAGE_KEY, JSON.stringify(measureResult.data.data));
         fragrances = Array.isArray(measureResult.data.data.fragranceLibrary) ? measureResult.data.data.fragranceLibrary : fragrances;
-        saveLocalCollection(FRAGRANCES_STORAGE_KEY, fragrances);
         populateMeasurements();
       }
+      if (fragranceResult.data?.length) {
+        fragrances = fragranceResult.data.flatMap(row => Array.isArray(row.data?.items) ? row.data.items : []);
+      }
+      saveLocalCollection(FRAGRANCES_STORAGE_KEY, fragrances);
       // First login migrates the existing browser data. Later logins merge local and cloud records.
       await syncCollection("closet_items", items, "closet");
       await syncCollection("wishlist_items", wishes, "wishlist");
       await syncCollection("outfits", outfits, "outfits");
+      await syncPublicFragrances();
       const profile = loadMeasurements();
       profile.fragranceLibrary = fragrances;
       if (Object.values(profile).some(value => Array.isArray(value) ? value.length > 0 : String(value || "").trim())) {
