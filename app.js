@@ -56,6 +56,7 @@ function loadWishes() {
 function saveWishes() {
   try {
     localStorage.setItem(WISH_STORAGE_KEY, JSON.stringify(wishes));
+    updateStorageIndicator();
     queueCloudSync("wishlist_items");
     return true;
   } catch {
@@ -120,6 +121,7 @@ function loadItems() {
 function saveItems() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    updateStorageIndicator();
     queueCloudSync("closet_items");
     return true;
   } catch (error) {
@@ -127,6 +129,48 @@ function saveItems() {
     return false;
   }
 }
+async function updateStorageIndicator() {
+  const usageLabel = document.getElementById("storageUsage");
+  const detailLabel = document.getElementById("storageDetail");
+  const bar = document.getElementById("storageBar");
+  if (!usageLabel || !detailLabel || !bar) return;
+
+  const formatBytes = bytes => {
+    if (!Number.isFinite(bytes) || bytes < 0) return "—";
+    if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  try {
+    if (!navigator.storage || !navigator.storage.estimate) {
+      usageLabel.textContent = "Unavailable";
+      detailLabel.textContent = "Your browser does not report storage estimates.";
+      bar.style.width = "0%";
+      return;
+    }
+    const estimate = await navigator.storage.estimate();
+    const usage = estimate.usage;
+    const quota = estimate.quota;
+    if (!Number.isFinite(usage) || !Number.isFinite(quota) || quota <= 0) {
+      usageLabel.textContent = "Unavailable";
+      detailLabel.textContent = "Storage information is not available right now.";
+      bar.style.width = "0%";
+      return;
+    }
+    const percent = Math.min(100, Math.max(0, usage / quota * 100));
+    usageLabel.textContent = formatBytes(usage) + " used";
+    detailLabel.textContent = formatBytes(Math.max(0, quota - usage)) + " estimated available · shared by this website's browser data";
+    bar.style.width = percent.toFixed(1) + "%";
+    const meter = document.getElementById("storageMeter");
+    meter.classList.toggle("storage-warning", percent >= 80);
+    meter.classList.toggle("storage-critical", percent >= 95);
+  } catch {
+    usageLabel.textContent = "Unavailable";
+    detailLabel.textContent = "Could not read this device's storage estimate.";
+    bar.style.width = "0%";
+  }
+}
+
 function escapeHTML(value="") {
   return String(value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
 }
@@ -208,6 +252,7 @@ function loadOutfits() {
 function saveOutfits() {
   try {
     localStorage.setItem(OUTFITS_STORAGE_KEY, JSON.stringify(outfits));
+    updateStorageIndicator();
     queueCloudSync("outfits");
     return true;
   } catch {
@@ -535,6 +580,7 @@ wishlistGrid.addEventListener("click", event => {
       return;
     }
     render();
+updateStorageIndicator();
     renderWishes();
     setView("closet");
     return;
