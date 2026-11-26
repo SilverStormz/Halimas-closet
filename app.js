@@ -43,6 +43,8 @@ let editingFragranceId = null;
 const measurementFields = ["measureHeight","measureWeight","measureBust","measureWaist","measureHips","measureInseam","sizeTops","sizeBottoms","sizeDresses","sizeOuterwear","sizeBra","sizeShoes","sizeRings","sizeBracelet","sizeNecklace","sizeBelt","sizeHat","measureNotes"];
 const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
 let wishes = loadWishes();
+let wishPhoto = "";
+let wishPhotoProcessingPromise = Promise.resolve();
 let activeView = "closet";
 let editingItemId = null;
 let editingPhoto = "";
@@ -67,14 +69,15 @@ function saveWishes() {
 function renderWishes() {
   wishlistGrid.innerHTML = wishes.map(wish => `
     <article class="wish-card">
-      <div class="wish-card-top"><span>♡ A LITTLE WISH</span><button class="wish-delete" data-wish-delete="${wish.id}" aria-label="Remove ${escapeHTML(wish.name)}">×</button></div>
+      <div class="wish-card-top"><span>♡ A LITTLE WISH</span><button class="wish-delete" data-wish-delete="${escapeHTML(wish.id)}" aria-label="Remove ${escapeHTML(wish.name)}">×</button></div>
+      ${wish.photo ? `<a class="wish-photo-link" href="${escapeHTML(wish.photo)}" target="_blank" rel="noopener noreferrer" aria-label="View photo of ${escapeHTML(wish.name)}"><img class="wish-card-photo" src="${escapeHTML(wish.photo)}" alt="${escapeHTML(wish.name)}"></a>` : ""}
       <h3>${escapeHTML(wish.name)}</h3>
       <p class="wish-brand">${escapeHTML(wish.brand || wish.category || "On my radar")}</p>
       ${wish.price ? `<p class="wish-price">${escapeHTML(wish.price)}</p>` : ""}
       ${wish.notes ? `<p class="wish-notes">${escapeHTML(wish.notes)}</p>` : ""}
       <div class="wish-actions">
         ${wish.link ? `<a href="${escapeHTML(wish.link)}" target="_blank" rel="noopener noreferrer">View item ↗</a>` : "<span></span>"}
-        <button type="button" data-wish-got="${wish.id}">I got it! ✧</button>
+        <button type="button" data-wish-got="${escapeHTML(wish.id)}">I got it! ✧</button>
       </div>
     </article>`).join("");
   wishlistEmpty.hidden = wishes.length > 0;
@@ -234,7 +237,54 @@ function openEditDialog(item) {
   document.querySelector("#itemForm .save-button").textContent = "Save changes";
   dialog.showModal();
 }
-function openWishDialog() { wishDialog.showModal(); }
+function resetWishPhoto() {
+  wishPhoto = "";
+  wishPhotoProcessingPromise = Promise.resolve();
+  const input = document.getElementById("wishPhotoInput");
+  const preview = document.getElementById("wishPhotoPreview");
+  input.value = "";
+  preview.hidden = true;
+  preview.removeAttribute("src");
+  document.getElementById("wishPhotoLabel").textContent = "Add a photo of your wish";
+  document.getElementById("wishUploadIcon").hidden = false;
+  document.querySelector(".wish-photo-drop small").hidden = false;
+  const status = document.getElementById("wishPhotoStatus");
+  status.hidden = true;
+  status.textContent = "";
+}
+function openWishDialog() {
+  resetWishPhoto();
+  wishDialog.showModal();
+}
+async function processWishPhoto(file) {
+  const optimized = await optimizeClosetImage(file, 1000, "image/jpeg", 0.72);
+  wishPhoto = await readBlobAsDataURL(optimized);
+  const preview = document.getElementById("wishPhotoPreview");
+  preview.src = wishPhoto;
+  preview.hidden = false;
+  document.getElementById("wishPhotoStatus").hidden = true;
+}
+document.getElementById("wishPhotoInput").addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    alert("Please choose an image file.");
+    resetWishPhoto();
+    return;
+  }
+  document.getElementById("wishPhotoLabel").textContent = file.name;
+  document.getElementById("wishUploadIcon").hidden = true;
+  document.querySelector(".wish-photo-drop small").hidden = true;
+  const status = document.getElementById("wishPhotoStatus");
+  status.textContent = "Optimizing your photo…";
+  status.hidden = false;
+  wishPhotoProcessingPromise = processWishPhoto(file).catch(error => {
+    console.error("Could not prepare wishlist photo:", error);
+    status.textContent = "Could not prepare this photo. Please try another image.";
+    status.hidden = false;
+    wishPhoto = "";
+  });
+});
 
 function loadOutfits() {
   try { return JSON.parse(localStorage.getItem(OUTFITS_STORAGE_KEY) || "[]"); }
@@ -511,8 +561,13 @@ document.querySelectorAll(".archive-tab").forEach(tab => {
 document.getElementById("openWishTop").addEventListener("click", openWishDialog);
 document.getElementById("openWishEmpty").addEventListener("click", openWishDialog);
 document.getElementById("closeWishDialog").addEventListener("click", () => wishDialog.close());
-wishForm.addEventListener("submit", event => {
+wishForm.addEventListener("submit", async event => {
   event.preventDefault();
+  const saveButton = wishForm.querySelector(".save-button");
+  const originalButtonText = saveButton.textContent;
+  saveButton.disabled = true;
+  saveButton.textContent = "Preparing your wish…";
+  await wishPhotoProcessingPromise;
   const link = document.getElementById("wishLink").value.trim();
   if (link) {
     try {
@@ -530,14 +585,18 @@ wishForm.addEventListener("submit", event => {
     category: document.getElementById("wishCategory").value,
     price: document.getElementById("wishPrice").value.trim(),
     link,
-    notes: document.getElementById("wishNotes").value.trim()
+    notes: document.getElementById("wishNotes").value.trim(),
+    photo: wishPhoto
   };
   wishes.unshift(wish);
   if (saveWishes()) {
     wishForm.reset();
+    resetWishPhoto();
     wishDialog.close();
     setView("wishlist");
   } else { wishes.shift(); }
+  saveButton.disabled = false;
+  saveButton.textContent = originalButtonText;
 });
 wishlistGrid.addEventListener("click", event => {
   const removeButton = event.target.closest("[data-wish-delete]");
@@ -549,7 +608,7 @@ wishlistGrid.addEventListener("click", event => {
   if (gotButton) {
     const newItem = {
       id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
-      photo: "",
+      photo: wish.photo || "",
       name: wish.name,
       brand: wish.brand || "",
       category: wish.category || "Other",
