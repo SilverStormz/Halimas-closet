@@ -45,6 +45,8 @@ const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
 let wishes = loadWishes();
 let wishPhoto = "";
 let wishPhotoProcessingPromise = Promise.resolve();
+let wishPreviewPromise = Promise.resolve();
+let lastWishPreviewLink = "";
 let activeView = "closet";
 let editingItemId = null;
 let editingPhoto = "";
@@ -238,6 +240,13 @@ function openEditDialog(item) {
   dialog.showModal();
 }
 function resetWishPhoto() {
+  wishPreviewPromise = Promise.resolve();
+  lastWishPreviewLink = "";
+  const linkStatus = document.getElementById("wishLinkStatus");
+  if (linkStatus) linkStatus.textContent = "Paste a product link, then find its photo automatically.";
+  const linkPreview = document.getElementById("wishLinkPreview");
+  if (linkPreview) linkPreview.hidden = true;
+
   wishPhoto = "";
   wishPhotoProcessingPromise = Promise.resolve();
   const input = document.getElementById("wishPhotoInput");
@@ -569,6 +578,10 @@ wishForm.addEventListener("submit", async event => {
   saveButton.textContent = "Preparing your wish…";
   await wishPhotoProcessingPromise;
   const link = document.getElementById("wishLink").value.trim();
+  if (link && !wishPhoto && lastWishPreviewLink !== link) {
+    wishPreviewPromise = fetchWishProductPreview();
+  }
+  await wishPreviewPromise;
   if (link) {
     try {
       const parsed = new URL(link);
@@ -844,11 +857,79 @@ document.getElementById("importBackupFile").addEventListener("change", async eve
 });
 
 
+// Retrieve product details from the secure Supabase Edge Function.
+async function fetchWishProductPreview() {
+  const linkInput = document.getElementById("wishLink");
+  const link = linkInput.value.trim();
+  const status = document.getElementById("wishLinkStatus");
+  const preview = document.getElementById("wishLinkPreview");
+  const previewImage = document.getElementById("wishLinkPreviewImage");
+  const previewTitle = document.getElementById("wishLinkPreviewTitle");
+  const fetchButton = document.getElementById("wishFetchPhoto");
+  if (!link) {
+    status.textContent = "Add a product link first.";
+    return;
+  }
+  let parsed;
+  try {
+    parsed = new URL(link);
+    if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid URL");
+  } catch {
+    status.textContent = "Please enter a valid https:// product link.";
+    return;
+  }
+  if (lastWishPreviewLink === link && wishPhoto) return;
+  if (!signedInUser) {
+    status.textContent = "Sign in to your Closet Log account to retrieve product photos.";
+    return;
+  }
+  fetchButton.disabled = true;
+  fetchButton.textContent = "Finding photo…";
+  status.textContent = "Looking for the product image…";
+  try {
+    const { data, error } = await authClient.functions.invoke("fetch-product-preview", { body: { url: parsed.href } });
+    if (error) throw error;
+    if (!data?.image) throw new Error(data?.message || "No product image was found on this page.");
+    wishPhoto = data.image;
+    lastWishPreviewLink = link;
+    previewImage.src = data.image;
+    previewTitle.textContent = data.title || parsed.hostname.replace(/^www\./, "");
+    preview.hidden = false;
+    if (data.title && !document.getElementById("wishName").value.trim()) {
+      document.getElementById("wishName").value = data.title;
+    }
+    if (data.brand && !document.getElementById("wishBrand").value.trim()) {
+      document.getElementById("wishBrand").value = data.brand;
+    }
+    if (data.price && !document.getElementById("wishPrice").value.trim()) {
+      document.getElementById("wishPrice").value = data.price;
+    }
+    status.textContent = "Product photo found! You can still upload your own photo instead.";
+  } catch (error) {
+    console.warn("Could not retrieve wishlist product image:", error);
+    status.textContent = error?.message?.includes("fetch-product-preview")
+      ? "Photo lookup isn't connected yet. We'll finish setting it up in Supabase."
+      : "We couldn't retrieve a photo from this site. You can upload one instead.";
+  } finally {
+    fetchButton.disabled = false;
+    fetchButton.textContent = "Find product photo ↗";
+  }
+}
+
 // HALIMAS SUPABASE AUTH + CLOUD SYNC
 // The publishable key is intended for browser use. Database RLS policies enforce access.
 const HALIMA_SUPABASE_URL = "https://naatoomldeagsjzpzbmu.supabase.co";
 const HALIMA_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_tTdgopDPFvrEv8E_qdt_2Q_NKu93Dqi";
 const authClient = window.supabase.createClient(HALIMA_SUPABASE_URL, HALIMA_SUPABASE_PUBLISHABLE_KEY);
+document.getElementById("wishFetchPhoto").addEventListener("click", () => {
+  wishPreviewPromise = fetchWishProductPreview();
+});
+document.getElementById("wishLink").addEventListener("change", () => {
+  if (document.getElementById("wishLink").value.trim()) {
+    wishPreviewPromise = fetchWishProductPreview();
+  }
+});
+
 const authPanel = document.getElementById("authPanel");
 const openAuthDialogButton = document.getElementById("openAuthDialog");
 const closeAuthDialogButton = document.getElementById("closeAuthDialog");
