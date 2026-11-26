@@ -2349,13 +2349,6 @@ body:not(.is-owner) #storageMeter { display: none !important; }
 
 
 /* Wishlist product-link photo lookup */
-.wish-link-tools { display: grid; gap: 8px; align-content: start; }
-.wish-link-tools > button { justify-self: start; }
 #wishLinkStatus { margin: 0; color: var(--muted, #777); font-size: 0.78rem; line-height: 1.45; }
-.wish-link-preview { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid rgba(80, 60, 90, .18); border-radius: 10px; background: rgba(255,255,255,.55); }
-.wish-link-preview img { width: 68px; height: 82px; object-fit: contain; background: #fff; border-radius: 6px; }
-.wish-link-preview span { font-size: .82rem; font-weight: 600; }
-.wish-link-tools button:disabled { opacity: .6; cursor: wait; }
 @media (max-width: 600px) {
-  .wish-link-tools { grid-column: 1 / -1; }
 }
