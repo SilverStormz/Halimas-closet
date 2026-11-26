@@ -268,6 +268,9 @@ function openWishDialog() {
 async function processWishPhoto(file) {
   const optimized = await optimizeClosetImage(file, 1000, "image/jpeg", 0.72);
   wishPhoto = await readBlobAsDataURL(optimized);
+  document.getElementById("wishLinkPreview").hidden = true;
+  document.getElementById("wishLinkStatus").textContent = "Using your uploaded photo instead of the product-link image.";
+  lastWishPreviewLink = "";
   const preview = document.getElementById("wishPhotoPreview");
   preview.src = wishPhoto;
   preview.hidden = false;
