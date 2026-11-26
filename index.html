@@ -243,6 +243,14 @@
         <div><p class="eyebrow">A LITTLE SOMETHING TO LOOK FORWARD TO</p><h2>Add to my wish list</h2></div>
         <button type="button" class="close-button" id="closeWishDialog" aria-label="Close">×</button>
       </div>
+      <label class="photo-drop wish-photo-drop" for="wishPhotoInput">
+        <span class="upload-icon" id="wishUploadIcon">＋</span>
+        <strong id="wishPhotoLabel">Add a photo of your wish</strong>
+        <small>Choose an image from your camera roll or files</small>
+        <img id="wishPhotoPreview" alt="Wishlist photo preview" hidden>
+      </label>
+      <input id="wishPhotoInput" type="file" accept="image/*">
+      <p id="wishPhotoStatus" class="photo-processing-status" role="status" aria-live="polite" hidden></p>
       <div class="form-grid">
         <label class="field full">What are you wishing for?<input id="wishName" required placeholder="e.g. The perfect chocolate brown bag"></label>
         <label class="field">Brand<input id="wishBrand" placeholder="Optional"></label>
