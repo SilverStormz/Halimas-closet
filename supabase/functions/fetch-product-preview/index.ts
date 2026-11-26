@@ -1,3 +1,4 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
 // Supabase Edge Function: fetch-product-preview
 // Requires the normal Supabase JWT verification (do not disable verify_jwt).
 // Reads product metadata only; it does not download or store the retailer's image.
@@ -129,13 +130,49 @@ Deno.serve(async (request) => {
       current,
     );
     if (!image) return respond({ message: "No product image was found on this page." }, 404);
+
+    // Copy the retailer image into the user's existing public wardrobe photo bucket
+    // so the wishlist does not depend on the retailer keeping the same image URL.
+    const imageUrl = new URL(image);
+    await validatePublicHost(imageUrl);
+    const imageResponse = await fetch(imageUrl.href, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(10000),
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; HalimasCloset/1.0)", "Accept": "image/*" },
+    });
+    if (!imageResponse.ok) throw new Error("The product image could not be downloaded from this store.");
+    const imageType = (imageResponse.headers.get("content-type") || "").split(";")[0].trim().toLowerCase();
+    if (!imageType.startsWith("image/")) throw new Error("The store did not provide a usable product image.");
+    const imageBytes = new Uint8Array(await imageResponse.arrayBuffer());
+    if (!imageBytes.length || imageBytes.length > 6 * 1024 * 1024) throw new Error("The product image is too large to save (6 MB maximum).");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!serviceRoleKey) throw new Error("Cloud photo storage is not configured yet.");
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: request.headers.get("Authorization") || "" } },
+    });
+    const { data: userData, error: userError } = await userClient.auth.getUser();
+    if (userError || !userData.user) return respond({ message: "Please sign in to save a product photo." }, 401);
+
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    const extension = imageType.includes("png") ? "png" : imageType.includes("webp") ? "webp" : imageType.includes("gif") ? "gif" : "jpg";
+    const photoPath = userData.user.id + "/wishlist/" + crypto.randomUUID() + "." + extension;
+    const { error: uploadError } = await adminClient.storage.from("wardrobe-photos").upload(photoPath, imageBytes, {
+      contentType: imageType,
+      upsert: false,
+    });
+    if (uploadError) throw new Error("The product image was found, but could not be saved to your cloud photo library.");
+    const { data: publicPhoto } = adminClient.storage.from("wardrobe-photos").getPublicUrl(photoPath);
+
     const offers = product?.offers && typeof product.offers === "object" ? product.offers as Record<string, unknown> : {};
     const title = metaContent(html, "og:title") || (typeof product?.name === "string" ? product.name : "") ||
       (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "").replace(/<[^>]+>/g, "").trim();
     const brandValue = product?.brand && typeof product.brand === "object" ? (product.brand as Record<string, unknown>).name : product?.brand;
     const price = offers.price ? String(offers.price) + (offers.priceCurrency ? " " + String(offers.priceCurrency) : "") : "";
     return respond({
-      image,
+      image: publicPhoto.publicUrl,
       title: decodeEntities(String(title || "")).slice(0, 180),
       brand: typeof brandValue === "string" ? brandValue.slice(0, 100) : "",
       price: price.slice(0, 60),
