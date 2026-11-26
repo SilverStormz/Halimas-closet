@@ -575,6 +575,8 @@ wishForm.addEventListener("submit", async event => {
       if (!["http:", "https:"].includes(parsed.protocol)) throw new Error("Invalid URL");
     } catch {
       alert("Please enter a valid web link, beginning with https://");
+      saveButton.disabled = false;
+      saveButton.textContent = originalButtonText;
       return;
     }
   }
