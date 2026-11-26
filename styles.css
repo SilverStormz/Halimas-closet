@@ -2312,3 +2312,37 @@ body:not(.is-owner) #openFragranceAdd, body:not(.is-owner) #openFragranceEmpty, 
 
 /* Keep device storage details private to the signed-in owner */
 body:not(.is-owner) #storageMeter { display: none !important; }
+
+
+/* WISHLIST PHOTO UPLOAD AND VISUAL CARDS */
+#wishPhotoInput { display: none; }
+.wish-photo-drop {
+  display: flex;
+  min-height: 150px;
+  margin: 8px 0 14px;
+  cursor: pointer;
+}
+.wish-photo-drop img {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 7px;
+}
+.wish-photo-drop img[hidden] { display: none; }
+.wish-card-photo {
+  display: block;
+  width: 100%;
+  max-height: 230px;
+  margin: 12px 0 14px;
+  object-fit: contain;
+  object-position: center;
+  border: 1px solid var(--window-line);
+  border-radius: 7px;
+  background: #f5f1fa;
+}
+.wish-photo-link { display: block; text-decoration: none; }
+@media (max-width: 580px) {
+  .wish-photo-drop { min-height: 125px; }
+  .wish-card-photo { max-height: 190px; }
+}
