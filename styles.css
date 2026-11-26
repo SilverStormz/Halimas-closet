@@ -2308,3 +2308,7 @@ body:not(.is-owner) #openFragranceAdd, body:not(.is-owner) #openFragranceEmpty, 
     border-top: 1px solid var(--window-line);
   }
 }
+
+
+/* Keep device storage details private to the signed-in owner */
+body:not(.is-owner) #storageMeter { display: none !important; }
