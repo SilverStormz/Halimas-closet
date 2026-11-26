@@ -264,6 +264,11 @@
         </label>
         <label class="field">Price / budget<input id="wishPrice" placeholder="e.g. $250 CAD"></label>
         <label class="field">Link to item<input id="wishLink" type="url" placeholder="https://…"></label>
+        <div class="wish-link-tools full">
+          <button type="button" class="backup-restore" id="wishFetchPhoto">Find product photo ↗</button>
+          <p id="wishLinkStatus" role="status" aria-live="polite">Paste a product link, then find its photo automatically.</p>
+          <div id="wishLinkPreview" class="wish-link-preview" hidden><img id="wishLinkPreviewImage" alt="Product photo found from link"><span id="wishLinkPreviewTitle"></span></div>
+        </div>
         <label class="field full">Notes<textarea id="wishNotes" rows="3" placeholder="Colour, details, why it's on your list…"></textarea></label>
       </div>
       <button class="save-button" type="submit">Save to my wish list ♡</button>
