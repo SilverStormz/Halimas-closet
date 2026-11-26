@@ -568,6 +568,7 @@ wishForm.addEventListener("submit", async event => {
   saveButton.disabled = true;
   saveButton.textContent = "Preparing your wish…";
   await wishPhotoProcessingPromise;
+  const link = document.getElementById("wishLink").value.trim();
   if (link) {
     try {
       const parsed = new URL(link);
