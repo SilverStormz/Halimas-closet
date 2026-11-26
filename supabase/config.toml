@@ -1,0 +1,4 @@
+project_id = "naatoomldeagsjzpzbmu"
+
+[functions.fetch-product-preview]
+verify_jwt = true
