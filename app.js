@@ -44,6 +44,8 @@ const measurementFields = ["measureHeight","measureWeight","measureBust","measur
 const WISH_STORAGE_KEY = "halimas-closet-wishlist-v1";
 let wishes = loadWishes();
 let wishPhoto = "";
+let editingWishId = null;
+let editingWishPhoto = "";
 let wishPhotoProcessingPromise = Promise.resolve();
 let activeView = "closet";
 let editingItemId = null;
@@ -69,7 +71,7 @@ function saveWishes() {
 function renderWishes() {
   wishlistGrid.innerHTML = wishes.map(wish => `
     <article class="wish-card"${wish.link ? ` data-wish-url="${escapeHTML(wish.link)}" role="link" tabindex="0" aria-label="Open ${escapeHTML(wish.name)} product page in a new tab"` : ""}>
-      <div class="wish-card-top"><span>♡ A LITTLE WISH</span><button class="wish-delete" data-wish-delete="${escapeHTML(wish.id)}" aria-label="Remove ${escapeHTML(wish.name)}">×</button></div>
+      <div class="wish-card-top"><span>♡ A LITTLE WISH</span><div class="wish-card-controls"><button type="button" class="wish-edit" data-wish-edit="${escapeHTML(wish.id)}" aria-label="Edit ${escapeHTML(wish.name)}">Edit ✎</button><button type="button" class="wish-delete" data-wish-delete="${escapeHTML(wish.id)}" aria-label="Remove ${escapeHTML(wish.name)}">×</button></div></div>
       ${wish.photo ? `<div class="wish-photo-link"><img class="wish-card-photo" src="${escapeHTML(wish.photo)}" alt="${escapeHTML(wish.name)}"></div>` : ""}
       <h3>${escapeHTML(wish.name)}</h3>
       <p class="wish-brand">${escapeHTML(wish.brand || wish.category || "On my radar")}</p>
@@ -251,8 +253,27 @@ function resetWishPhoto() {
   status.hidden = true;
   status.textContent = "";
 }
-function openWishDialog() {
+function openWishDialog(wish = null) {
   resetWishPhoto();
+  editingWishId = wish ? wish.id : null;
+  editingWishPhoto = wish?.photo || "";
+  document.getElementById("wishName").value = wish?.name || "";
+  document.getElementById("wishBrand").value = wish?.brand || "";
+  document.getElementById("wishCategory").value = wish?.category || "";
+  document.getElementById("wishPrice").value = wish?.price || "";
+  document.getElementById("wishLink").value = wish?.link || "";
+  document.getElementById("wishNotes").value = wish?.notes || "";
+  if (wish?.photo) {
+    wishPhoto = wish.photo;
+    const preview = document.getElementById("wishPhotoPreview");
+    preview.src = wish.photo;
+    preview.hidden = false;
+    document.getElementById("wishPhotoLabel").textContent = "Current photo (choose to replace)";
+    document.getElementById("wishUploadIcon").hidden = true;
+    document.querySelector(".wish-photo-drop small").hidden = true;
+  }
+  wishForm.querySelector(".dialog-heading h2").textContent = wish ? "Edit my wish" : "Add to my wish list";
+  wishForm.querySelector(".save-button").textContent = wish ? "Save wish changes ♡" : "Save to my wish list ♡";
   wishDialog.showModal();
 }
 async function processWishPhoto(file) {
@@ -580,32 +601,38 @@ wishForm.addEventListener("submit", async event => {
     }
   }
   const wish = {
-    id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+    id: editingWishId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
     name: document.getElementById("wishName").value.trim(),
     brand: document.getElementById("wishBrand").value.trim(),
     category: document.getElementById("wishCategory").value,
     price: document.getElementById("wishPrice").value.trim(),
     link,
     notes: document.getElementById("wishNotes").value.trim(),
-    photo: wishPhoto
+    photo: wishPhoto || editingWishPhoto
   };
-  wishes.unshift(wish);
+  const previousWishes = [...wishes];
+  if (editingWishId) wishes = wishes.map(entry => String(entry.id) === String(editingWishId) ? wish : entry);
+  else wishes.unshift(wish);
   if (saveWishes()) {
     wishForm.reset();
     resetWishPhoto();
+    editingWishId = null;
+    editingWishPhoto = "";
     wishDialog.close();
     setView("wishlist");
-  } else { wishes.shift(); }
+  } else { wishes = previousWishes; }
   saveButton.disabled = false;
   saveButton.textContent = originalButtonText;
 });
 wishlistGrid.addEventListener("click", event => {
+  const editButton = event.target.closest("[data-wish-edit]");
   const removeButton = event.target.closest("[data-wish-delete]");
   const gotButton = event.target.closest("[data-wish-got]");
-  const id = removeButton?.dataset.wishDelete || gotButton?.dataset.wishGot;
+  const id = editButton?.dataset.wishEdit || removeButton?.dataset.wishDelete || gotButton?.dataset.wishGot;
   if (!id) return;
   const wish = wishes.find(entry => entry.id === id);
   if (!wish) return;
+  if (editButton) { openWishDialog(wish); return; }
   if (gotButton) {
     const newItem = {
       id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
