@@ -78,7 +78,7 @@ function renderWishes() {
       <div class="wish-actions">
         <button type="button" data-wish-got="${escapeHTML(wish.id)}">I got it! ✧</button>
       </div>
-    </article>`;`).join("");
+    </article>`).join("");
   wishlistEmpty.hidden = wishes.length > 0;
 }
 function setView(view) {
