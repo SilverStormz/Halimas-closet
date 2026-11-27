@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<rect width="128" height="128" rx="25" fill="#b99acb"/>
+<g fill="#fff4e8" font-family="Bodoni MT, Didot, Georgia, serif" font-weight="500">
+<text x="24" y="91" font-size="92">H</text><text x="57" y="91" font-size="92">C</text>
+</g>
+<path d="M22 101 Q64 53 107 28" fill="none" stroke="#fff4e8" stroke-width="2.5"/>
+<path d="M106 14 L109 23 L118 26 L109 29 L106 38 L103 29 L94 26 L103 23Z" fill="#fff4e8"/>
+</svg>
