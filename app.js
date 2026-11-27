@@ -68,18 +68,17 @@ function saveWishes() {
 }
 function renderWishes() {
   wishlistGrid.innerHTML = wishes.map(wish => `
-    <article class="wish-card">
+    <article class="wish-card"${wish.link ? ` data-wish-url="${escapeHTML(wish.link)}" role="link" tabindex="0" aria-label="Open ${escapeHTML(wish.name)} product page in a new tab"` : ""}>
       <div class="wish-card-top"><span>♡ A LITTLE WISH</span><button class="wish-delete" data-wish-delete="${escapeHTML(wish.id)}" aria-label="Remove ${escapeHTML(wish.name)}">×</button></div>
-      ${wish.photo ? `<a class="wish-photo-link" href="${escapeHTML(wish.photo)}" target="_blank" rel="noopener noreferrer" aria-label="View photo of ${escapeHTML(wish.name)}"><img class="wish-card-photo" src="${escapeHTML(wish.photo)}" alt="${escapeHTML(wish.name)}"></a>` : ""}
+      ${wish.photo ? `<div class="wish-photo-link"><img class="wish-card-photo" src="${escapeHTML(wish.photo)}" alt="${escapeHTML(wish.name)}"></div>` : ""}
       <h3>${escapeHTML(wish.name)}</h3>
       <p class="wish-brand">${escapeHTML(wish.brand || wish.category || "On my radar")}</p>
       ${wish.price ? `<p class="wish-price">${escapeHTML(wish.price)}</p>` : ""}
       ${wish.notes ? `<p class="wish-notes">${escapeHTML(wish.notes)}</p>` : ""}
       <div class="wish-actions">
-        ${wish.link ? `<a href="${escapeHTML(wish.link)}" target="_blank" rel="noopener noreferrer">View item ↗</a>` : "<span></span>"}
         <button type="button" data-wish-got="${escapeHTML(wish.id)}">I got it! ✧</button>
       </div>
-    </article>`).join("");
+    </article>`;`).join("");
   wishlistEmpty.hidden = wishes.length > 0;
 }
 function setView(view) {
@@ -642,6 +641,18 @@ updateStorageIndicator();
   wishes = wishes.filter(entry => entry.id !== id);
   if (!saveWishes()) wishes.push(wish);
   renderWishes();
+});
+wishlistGrid.addEventListener("click", event => {
+  const card = event.target.closest(".wish-card[data-wish-url]");
+  if (!card || event.target.closest("button, a, input, select, textarea, label")) return;
+  window.open(card.dataset.wishUrl, "_blank", "noopener,noreferrer");
+});
+wishlistGrid.addEventListener("keydown", event => {
+  const card = event.target.closest(".wish-card[data-wish-url]");
+  if (!card || (event.key !== "Enter" && event.key !== " ")) return;
+  if (event.target !== card) return;
+  event.preventDefault();
+  window.open(card.dataset.wishUrl, "_blank", "noopener,noreferrer");
 });
 document.getElementById("openAddTop").addEventListener("click", openDialog);
 document.getElementById("openAddEmpty").addEventListener("click", openDialog);
