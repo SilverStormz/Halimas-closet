@@ -973,6 +973,22 @@ h3,
   letter-spacing: .12em;
   font-weight: 700;
 }
+.wish-card-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.wish-edit {
+  border: 1px solid #e4d9ef;
+  border-radius: 999px;
+  padding: 4px 9px;
+  background: #f7f1fb;
+  color: var(--button-purple-dark);
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: normal;
+  cursor: pointer;
+}
 .wish-delete {
   border: 0;
   background: transparent;
